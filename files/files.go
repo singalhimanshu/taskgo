@@ -1,15 +1,16 @@
 package files
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 )
 
-const FILE_NAME = "taskgo.md"
+const fileName = "/taskgo.md"
 
-const INITIAL_FILE_CONTENT = `# %s
+const initialFileContent = `# %s
 
 ## %s
 
@@ -22,9 +23,28 @@ const INITIAL_FILE_CONTENT = `# %s
 
 `
 
+var validPrefixes = [...]string{
+	// Board Name
+	"# ",
+	// List Name
+	"## ",
+	// Task
+	"- ",
+	// Task Description
+	"> ",
+	// Subtask
+	"* ",
+}
+
 func CheckFile() bool {
-	filePath := "./" + FILE_NAME
-	_, err := os.Stat(filePath)
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	filePath := dir + fileName
+	log.Println(filePath)
+	_, err = os.Stat(filePath)
 	return err == nil
 }
 
@@ -33,7 +53,7 @@ func CreateFile() {
 	defer f.Close()
 
 	if err != nil {
-		log.Fatalf("Cannot create file %q, ERR: %v", FILE_NAME, err)
+		log.Fatalf("Cannot create file %q, ERR: %v", fileName, err)
 	}
 }
 
@@ -42,19 +62,24 @@ func WriteInitialContent() {
 	defer f.Close()
 
 	if err != nil {
-		log.Fatalf("Cannot Open file %q, ERR: %v", FILE_NAME, err)
+		log.Fatalf("Cannot Open file %q, ERR: %v", fileName, err)
 	}
 
 	// TODO: Make these customizable
-	_, err = f.WriteString(fmt.Sprintf(INITIAL_FILE_CONTENT, GetBoardName(), "TODO", "DOING", "DONE"))
+	_, err = f.WriteString(fmt.Sprintf(initialFileContent, GetBoardName(), "TODO", "DOING", "DONE"))
 
 	if err != nil {
-		log.Fatalf("Cannot write contents to file (%v): %v", FILE_NAME, err)
+		log.Fatalf("Cannot write contents to file (%v): %v", fileName, err)
 	}
 }
 
 func OpenFileWriteOnly() (*os.File, error) {
-	return os.OpenFile(FILE_NAME, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return os.OpenFile(dir+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
 func GetBoardName() string {
@@ -67,4 +92,48 @@ func GetBoardName() string {
 	dirName := dirs[len(dirs)-1]
 
 	return dirName
+}
+
+func CheckPrefix(line string) bool {
+	result := false
+	for _, prefix := range validPrefixes {
+		if strings.HasPrefix(line, prefix) {
+			result = true
+			break
+		}
+	}
+	return result
+}
+
+func CheckFileSyntax() bool {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file, err := os.Open(dir + fileName)
+	defer file.Close()
+
+	if err != nil {
+		log.Fatalf("failed to open file: %v", err)
+	}
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	var fileContent []string
+
+	for scanner.Scan() {
+		fileContent = append(fileContent, scanner.Text())
+	}
+
+	for _, line := range fileContent {
+		// ignore empty lines
+		if len(line) < 1 {
+			continue
+		}
+		if !CheckPrefix(line) {
+			return false
+		}
+	}
+	return true
 }

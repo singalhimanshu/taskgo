@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/rivo/tview"
 	"github.com/singalhimanshu/taskgo/files"
 )
 
@@ -21,4 +22,18 @@ func main() {
 			return
 		}
 	}
+
+	checkFileSyntax := files.CheckFileSyntax()
+
+	if !checkFileSyntax {
+		panic("Cannot Parse file invalid syntax")
+	}
+
+	boardName := files.GetBoardName()
+
+	box := tview.NewBox().SetBorder(true).SetTitle(boardName)
+	if err := tview.NewApplication().SetRoot(box, true).Run(); err != nil {
+		panic(err)
+	}
+
 }
