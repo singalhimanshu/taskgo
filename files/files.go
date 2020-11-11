@@ -66,7 +66,7 @@ func WriteInitialContent() {
 	}
 
 	// TODO: Make these customizable
-	_, err = f.WriteString(fmt.Sprintf(initialFileContent, GetBoardName(), "TODO", "DOING", "DONE"))
+	_, err = f.WriteString(fmt.Sprintf(initialFileContent, GetDirectoryName(), "TODO", "DOING", "DONE"))
 
 	if err != nil {
 		log.Fatalf("Cannot write contents to file (%v): %v", fileName, err)
@@ -82,7 +82,7 @@ func OpenFileWriteOnly() (*os.File, error) {
 	return os.OpenFile(dir+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
-func GetBoardName() string {
+func GetDirectoryName() string {
 	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Cannot get directory name: %v", err)

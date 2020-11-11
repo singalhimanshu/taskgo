@@ -43,7 +43,7 @@ func TestWriteInitialContent(t *testing.T) {
 }
 
 func TestGetBoardName(t *testing.T) {
-	got := GetBoardName()
+	got := GetDirectoryName()
 	want := "files"
 
 	if got != want {

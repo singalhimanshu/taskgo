@@ -5,6 +5,7 @@ import (
 
 	"github.com/rivo/tview"
 	"github.com/singalhimanshu/taskgo/files"
+	"github.com/singalhimanshu/taskgo/parser"
 )
 
 func main() {
@@ -29,9 +30,11 @@ func main() {
 		panic("Cannot Parse file invalid syntax")
 	}
 
-	boardName := files.GetBoardName()
+	boardName := parser.GetBoardName()
 
-	box := tview.NewBox().SetBorder(true).SetTitle(boardName)
+	box := tview.NewBox().
+		SetBorder(true).
+		SetTitle(" " + boardName + " ")
 	if err := tview.NewApplication().SetRoot(box, true).Run(); err != nil {
 		panic(err)
 	}
