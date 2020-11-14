@@ -33,3 +33,14 @@ func TestGetListNames(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
+
+func TestGetTaskFromListName(t *testing.T) {
+	got := GetTaskFromListName("TODO")
+	want := []string{
+		"Task 1",
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
