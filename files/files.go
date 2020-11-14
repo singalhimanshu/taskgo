@@ -97,7 +97,7 @@ func GetDirectoryName() string {
 func CheckPrefix(line string) bool {
 	result := false
 	for _, prefix := range validPrefixes {
-		if strings.HasPrefix(line, prefix) {
+		if strings.HasPrefix(strings.TrimSpace(line), prefix) {
 			result = true
 			break
 		}
