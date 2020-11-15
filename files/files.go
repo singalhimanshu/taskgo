@@ -106,25 +106,7 @@ func CheckPrefix(line string) bool {
 }
 
 func CheckFileSyntax() bool {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	file, err := os.Open(dir + fileName)
-	defer file.Close()
-
-	if err != nil {
-		log.Fatalf("failed to open file: %v", err)
-	}
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var fileContent []string
-
-	for scanner.Scan() {
-		fileContent = append(fileContent, scanner.Text())
-	}
+	fileContent := OpenFile(fileName)
 
 	for _, line := range fileContent {
 		// ignore empty lines
@@ -136,4 +118,29 @@ func CheckFileSyntax() bool {
 		}
 	}
 	return true
+}
+
+func OpenFile(fileName string) []string {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	filePath := dir + fileName
+
+	file, err := os.Open(filePath)
+	defer file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	var fileContent []string
+
+	for scanner.Scan() {
+		fileContent = append(fileContent, scanner.Text())
+	}
+
+	return fileContent
 }

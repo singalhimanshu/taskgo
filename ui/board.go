@@ -25,8 +25,18 @@ func NewBoardPage() *BoardPage {
 
 func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
-	for i := 0; i < 3; i++ {
+	listNames := parser.GetListNames()
+
+	for i := 0; i < len(listNames); i++ {
 		p.mainArea[i] = tview.NewList()
+
+		p.mainArea[i].
+			ShowSecondaryText(false).
+			SetBorder(true).
+			SetBorderColor(theme.BorderColor)
+
+		p.mainArea[i].SetTitle(listNames[i])
+
 		p.mainArea[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			globalInputCapture(event)
 
@@ -37,7 +47,9 @@ func (p *BoardPage) Page() tview.Primitive {
 			return event
 		})
 
-		p.mainArea[i].AddItem("testing", "", 0, nil).SetBorder(true)
+		for _, item := range parser.GetTaskFromListName(listNames[i]) {
+			p.mainArea[i].AddItem(item, "", 0, nil)
+		}
 
 		flex.AddItem(p.mainArea[i], 0, 1, i == 0)
 	}
@@ -46,6 +58,7 @@ func (p *BoardPage) Page() tview.Primitive {
 		globalInputCapture(event)
 		return event
 	})
+
 	boardName := parser.GetBoardName()
 	boardName = "Board: " + boardName
 

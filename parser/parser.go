@@ -1,37 +1,18 @@
 package parser
 
 import (
-	"bufio"
-	"log"
-	"os"
 	"strings"
+
+	"github.com/singalhimanshu/taskgo/files"
 )
 
 const fileName = "/taskgo.md"
 
 func GetBoardName() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filePath := dir + fileName
-
-	file, err := os.Open(filePath)
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	var boardName string
 
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var fileContent []string
-
-	for scanner.Scan() {
-		fileContent = append(fileContent, scanner.Text())
-	}
+	fileContent := files.OpenFile(fileName)
 
 	for _, line := range fileContent {
 		// ignore empty lines
@@ -50,28 +31,9 @@ func GetBoardName() string {
 
 func GetListNames() []string {
 
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filePath := dir + fileName
-
-	file, err := os.Open(filePath)
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	var listNames []string
 
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var fileContent []string
-
-	for scanner.Scan() {
-		fileContent = append(fileContent, scanner.Text())
-	}
+	fileContent := files.OpenFile(fileName)
 
 	for _, line := range fileContent {
 		// ignore empty lines
@@ -89,30 +51,10 @@ func GetListNames() []string {
 }
 
 func GetTaskFromListName(listName string) []string {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filePath := dir + fileName
-
-	file, err := os.Open(filePath)
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	searchText := "## " + listName
-
 	var taskNames []string
 
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var fileContent []string
-
-	for scanner.Scan() {
-		fileContent = append(fileContent, scanner.Text())
-	}
+	fileContent := files.OpenFile(fileName)
 
 	taskStartIndex := -1
 
