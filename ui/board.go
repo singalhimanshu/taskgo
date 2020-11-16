@@ -1,63 +1,74 @@
 package ui
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/singalhimanshu/taskgo/parser"
 )
 
 type BoardPage struct {
-	mainArea []*tview.List
-	theme    *tview.Theme
+	lists         []*tview.List
+	theme         *tview.Theme
+	listNames     []string
+	activeListIdx int
 }
 
 func NewBoardPage() *BoardPage {
 	theme := defaultTheme()
 
+	listNames := parser.GetListNames()
+
 	return &BoardPage{
-		mainArea: make([]*tview.List, 3),
-		theme:    theme,
+		lists:         make([]*tview.List, len(listNames)),
+		listNames:     listNames,
+		theme:         theme,
+		activeListIdx: 0,
 	}
 }
 
 func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
-	listNames := parser.GetListNames()
 
-	for i := 0; i < len(listNames); i++ {
-		p.mainArea[i] = tview.NewList()
+	for i := 0; i < len(p.listNames); i++ {
+		p.lists[i] = tview.NewList()
 
-		p.mainArea[i].
+		p.lists[i].
 			ShowSecondaryText(false).
 			SetBorder(true).
 			SetBorderColor(theme.BorderColor)
 
-		p.mainArea[i].SetTitle(listNames[i])
+		p.lists[i].SetTitle(p.listNames[i])
 
-		p.mainArea[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			globalInputCapture(event)
+		p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			// globalInputCapture(event)
 
-			switch event.Key() {
-			case tcell.KeyUp:
-				fmt.Println("key up pressed")
+			switch event.Rune() {
+			case 'j':
+				p.down()
+			case 'k':
+				p.up()
+			case 'h':
+				p.left()
+			case 'l':
+				p.right()
+			case 'a':
+			case 'D':
+			case 'C':
+			case 'q':
+				app.Stop()
+			case '?':
+				pages.SwitchToPage("help")
+			default:
 			}
 			return event
 		})
 
-		for _, item := range parser.GetTaskFromListName(listNames[i]) {
-			p.mainArea[i].AddItem(item, "", 0, nil)
+		for _, item := range parser.GetTaskFromListName(p.listNames[i]) {
+			p.lists[i].AddItem(item, "", 0, nil)
 		}
 
-		flex.AddItem(p.mainArea[i], 0, 1, i == 0)
+		flex.AddItem(p.lists[i], 0, 1, i == 0)
 	}
-
-	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		globalInputCapture(event)
-		return event
-	})
 
 	boardName := parser.GetBoardName()
 	boardName = "Board: " + boardName
@@ -67,11 +78,33 @@ func (p *BoardPage) Page() tview.Primitive {
 		AddText(boardName, true, tview.AlignCenter, p.theme.TitleColor).
 		AddText("?: help \t q:quit", false, tview.AlignCenter, p.theme.PrimaryTextColor)
 
-	frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		globalInputCapture(event)
-		log.Println(event.Rune())
-		return event
-	})
-
 	return frame
+}
+
+func (p *BoardPage) down() {
+	activeList := p.lists[p.activeListIdx]
+	curIdx := activeList.GetCurrentItem()
+	listLen := activeList.GetItemCount()
+	newIdx := (curIdx + 1) % listLen
+	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
+}
+
+func (p *BoardPage) up() {
+	activeList := p.lists[p.activeListIdx]
+	curIdx := activeList.GetCurrentItem()
+	listLen := activeList.GetItemCount()
+	newIdx := (curIdx - 1 + listLen) % listLen
+	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
+}
+
+func (p *BoardPage) left() {
+	listCount := len(p.lists)
+	p.activeListIdx = (p.activeListIdx - 1 + listCount) % listCount
+	app.SetFocus(p.lists[p.activeListIdx])
+}
+
+func (p *BoardPage) right() {
+	listCount := len(p.lists)
+	p.activeListIdx = (p.activeListIdx + 1) % listCount
+	app.SetFocus(p.lists[p.activeListIdx])
 }
