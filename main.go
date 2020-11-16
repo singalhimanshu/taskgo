@@ -29,5 +29,9 @@ func main() {
 		panic("Cannot Parse file invalid syntax")
 	}
 
-	ui.Start()
+	err := ui.Start()
+
+	if err != nil {
+		panic(err)
+	}
 }
