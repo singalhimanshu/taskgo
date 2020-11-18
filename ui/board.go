@@ -52,6 +52,7 @@ func (p *BoardPage) Page() tview.Primitive {
 			case 'l':
 				p.right()
 			case 'a':
+				pages.AddAndSwitchToPage("add", NewAddPage(), true)
 			case 'D':
 			case 'C':
 			case 'q':
