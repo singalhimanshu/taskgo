@@ -8,7 +8,12 @@ import (
 // For this test you would have to manually create a file taskgo.md
 // Inside the parser folder with content: # Board Name
 func TestGetBoardName(t *testing.T) {
-	got := GetBoardName()
+	d, err := getNewData()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := d.GetBoardName()
 	want := "Board Name"
 
 	if got != want {
@@ -22,7 +27,12 @@ func TestGetBoardName(t *testing.T) {
 // ## DOING
 // ## DONE
 func TestGetListNames(t *testing.T) {
-	got := GetListNames()
+	d, err := getNewData()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := d.GetListNames()
 	want := []string{
 		"TODO",
 		"DOING",
@@ -34,13 +44,22 @@ func TestGetListNames(t *testing.T) {
 	}
 }
 
-func TestGetTaskFromListName(t *testing.T) {
-	got := GetTaskFromListName("TODO")
-	want := []string{
-		"Task 1",
+func TestGetTasks(t *testing.T) {
+	d, err := getNewData()
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	got := d.GetTasks(0)
+	want := []string{"Task 1"}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
 	}
+}
+
+func getNewData() (Data, error) {
+	d := Data{}
+	err := d.ParseData()
+	return d, err
 }

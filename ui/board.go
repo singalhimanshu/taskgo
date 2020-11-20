@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"log"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/singalhimanshu/taskgo/parser"
@@ -9,18 +11,21 @@ import (
 type BoardPage struct {
 	lists         []*tview.List
 	theme         *tview.Theme
-	listNames     []string
+	data          parser.Data
 	activeListIdx int
 }
 
 func NewBoardPage() *BoardPage {
 	theme := defaultTheme()
 
-	listNames := parser.GetListNames()
+	data := parser.Data{}
+	if err := data.ParseData(); err != nil {
+		log.Fatal(err)
+	}
 
 	return &BoardPage{
-		lists:         make([]*tview.List, len(listNames)),
-		listNames:     listNames,
+		lists:         make([]*tview.List, len(data.GetListNames())),
+		data:          data,
 		theme:         theme,
 		activeListIdx: 0,
 	}
@@ -29,7 +34,9 @@ func NewBoardPage() *BoardPage {
 func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
-	for i := 0; i < len(p.listNames); i++ {
+	listNames := p.data.GetListNames()
+
+	for i := 0; i < len(listNames); i++ {
 		p.lists[i] = tview.NewList()
 
 		p.lists[i].
@@ -37,7 +44,7 @@ func (p *BoardPage) Page() tview.Primitive {
 			SetBorder(true).
 			SetBorderColor(theme.BorderColor)
 
-		p.lists[i].SetTitle(p.listNames[i])
+		p.lists[i].SetTitle(listNames[i])
 
 		p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			// globalInputCapture(event)
@@ -64,14 +71,14 @@ func (p *BoardPage) Page() tview.Primitive {
 			return event
 		})
 
-		for _, item := range parser.GetTaskFromListName(p.listNames[i]) {
+		for _, item := range p.data.GetTasks(i) {
 			p.lists[i].AddItem(item, "", 0, nil)
 		}
 
 		flex.AddItem(p.lists[i], 0, 1, i == 0)
 	}
 
-	boardName := parser.GetBoardName()
+	boardName := p.data.GetBoardName()
 	boardName = "Board: " + boardName
 
 	frame := tview.NewFrame(flex).

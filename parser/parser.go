@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/singalhimanshu/taskgo/files"
@@ -8,79 +9,99 @@ import (
 
 const fileName = "/taskgo.md"
 
-func GetBoardName() string {
+type Data struct {
+	boardName string
+	lists     []List
+}
 
-	var boardName string
+type List struct {
+	listTitle string
+	listItems []ListItem
+}
 
+type ListItem struct {
+	itemName        string
+	itemDescription string
+}
+
+func (d *Data) ParseData() error {
+	fileFound := files.CheckFile()
+	if !fileFound {
+		files.CreateFile()
+	}
 	fileContent := files.OpenFile(fileName)
 
-	for _, line := range fileContent {
-		// ignore empty lines
+	for lineNumber, line := range fileContent {
+		line = strings.TrimSpace(line)
+
+		// skip empty lines
 		if len(line) < 1 {
 			continue
 		}
+
+		if !files.CheckPrefix(line) {
+			return fmt.Errorf("Error at line %v", lineNumber)
+		}
+
 		if strings.HasPrefix(line, "# ") {
-			line = strings.TrimSpace(line)
-			boardNamestartingIndex := strings.Index(line, " ") + 1
-			boardName = line[boardNamestartingIndex:]
+			boardNameStartingIndex := strings.Index(line, " ") + 1
+			boardName := line[boardNameStartingIndex:]
+
+			d.boardName = boardName
+
+		} else if strings.HasPrefix(line, "## ") {
+
+			listNameStartIndex := strings.Index(line, " ") + 1
+			listTitle := line[listNameStartIndex:]
+
+			d.lists = append(d.lists, List{
+				listTitle: listTitle,
+			})
+
+		} else if strings.HasPrefix(line, "- ") {
+			listLen := len(d.lists)
+
+			if listLen < 1 {
+				return fmt.Errorf("Error at line %v", lineNumber)
+			}
+
+			currentList := d.lists[listLen-1]
+			itemNameStartIndex := strings.Index(line, " ") + 1
+			itemName := line[itemNameStartIndex:]
+
+			currentList.listItems = append(currentList.listItems, ListItem{
+				itemName: itemName,
+			})
+
+			d.lists[listLen-1] = currentList
+		} else {
+			return fmt.Errorf("Error at line %v", lineNumber)
 		}
 	}
-
-	return boardName
+	return nil
 }
 
-func GetListNames() []string {
+func (d *Data) GetBoardName() string {
+	return d.boardName
+}
+
+func (d *Data) GetListNames() []string {
 
 	var listNames []string
 
-	fileContent := files.OpenFile(fileName)
-
-	for _, line := range fileContent {
-		// ignore empty lines
-		if len(line) < 1 {
-			continue
-		}
-		if strings.HasPrefix(line, "## ") {
-			line = strings.TrimSpace(line)
-			liststartingIndex := strings.Index(line, " ") + 1
-			listNames = append(listNames, line[liststartingIndex:])
-		}
+	for _, list := range d.lists {
+		listNames = append(listNames, list.listTitle)
 	}
 
 	return listNames
 }
 
-func GetTaskFromListName(listName string) []string {
-	searchText := "## " + listName
-	var taskNames []string
+func (d *Data) GetTasks(idx int) []string {
+	var tasks []string
 
-	fileContent := files.OpenFile(fileName)
-
-	taskStartIndex := -1
-
-	for i, line := range fileContent {
-		if strings.HasPrefix(line, searchText) {
-			taskStartIndex = i
-			break
-		}
+	for _, item := range d.lists[idx].listItems {
+		tasks = append(tasks, item.itemName)
 	}
 
-	if taskStartIndex == -1 {
-		return []string{}
-	}
-
-	for i := taskStartIndex + 1; i < len(fileContent); i++ {
-		if len(fileContent[i]) < 1 {
-			continue
-		}
-		if strings.HasPrefix(strings.TrimSpace(fileContent[i]), "- ") {
-			tempLine := strings.TrimSpace(fileContent[i])
-			taskNameIdx := strings.Index(tempLine, " ") + 1
-			taskNames = append(taskNames, tempLine[taskNameIdx:])
-		} else if strings.HasPrefix(strings.TrimSpace(fileContent[i]), "## ") {
-			break
-		}
-	}
-
-	return taskNames
+	return tasks
 }
