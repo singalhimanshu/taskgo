@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/singalhimanshu/taskgo/files"
@@ -104,4 +105,27 @@ func (d *Data) GetTasks(idx int) []string {
 	}
 
 	return tasks
+}
+
+func (d *Data) AddNewTask(idx int, taskTitle string) error {
+	d.lists[idx].listItems = append(d.lists[idx].listItems, ListItem{itemName: taskTitle})
+	return nil
+}
+
+func (d *Data) Save() {
+	var fileContent []string
+	fileContent = append(fileContent, "# "+d.boardName+"\n")
+
+	for _, list := range d.lists {
+		fileContent = append(fileContent, "## "+list.listTitle)
+		for _, listItem := range list.listItems {
+			fileContent = append(fileContent, "\t- "+listItem.itemName)
+		}
+		fileContent = append(fileContent, "\n")
+	}
+
+	err := files.WriteFile(fileContent, fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
