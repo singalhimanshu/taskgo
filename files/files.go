@@ -120,13 +120,22 @@ func CheckFileSyntax() bool {
 	return true
 }
 
-func OpenFile(fileName string) []string {
+func FilePath(fileName string) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	filePath := dir + fileName
+
+	return filePath, nil
+}
+
+func OpenFile(fileName string) []string {
+	filePath, err := FilePath(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	file, err := os.Open(filePath)
 	defer file.Close()
@@ -143,4 +152,24 @@ func OpenFile(fileName string) []string {
 	}
 
 	return fileContent
+}
+
+func WriteFile(fileContent []string, fileName string) error {
+	filePath, err := FilePath(fileName)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	for _, line := range fileContent {
+		fmt.Fprintln(w, line)
+	}
+
+	return w.Flush()
 }
