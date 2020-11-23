@@ -10,21 +10,26 @@ import (
 
 const fileName = "/taskgo.md"
 
+// A Data represents the board name and a slice of list.
 type Data struct {
 	boardName string
 	lists     []List
 }
 
+// A List represents the title of list and a list of items inside it (i.e tasks).
 type List struct {
 	listTitle string
 	listItems []ListItem
 }
 
+// A ListItem represents the name of item and it's description.
 type ListItem struct {
 	itemName        string
 	itemDescription string
 }
 
+// ParseData parses the contents of the file (taskgo.md) to custom type Data
+// It returns an error if the syntax of file is incorrect
 func (d *Data) ParseData() error {
 	fileFound := files.CheckFile()
 	if !fileFound {
@@ -82,10 +87,13 @@ func (d *Data) ParseData() error {
 	return nil
 }
 
+// GetBoardName returns the name of board.
 func (d *Data) GetBoardName() string {
 	return d.boardName
 }
 
+// GetListNames returns a list of all the list names.
+// Example: ["TODO", "DOING", "DONE"]
 func (d *Data) GetListNames() []string {
 
 	var listNames []string
@@ -97,6 +105,8 @@ func (d *Data) GetListNames() []string {
 	return listNames
 }
 
+// GetTasks returns a list of all the tasks.
+// Example: ["Task 1", "Task 2"]
 func (d *Data) GetTasks(idx int) []string {
 	var tasks []string
 
@@ -107,11 +117,18 @@ func (d *Data) GetTasks(idx int) []string {
 	return tasks
 }
 
+// AddNewTask adds a new task to a list provided the list index and the title of that task.
+// It returns an error if the index is out of bounds.
 func (d *Data) AddNewTask(idx int, taskTitle string) error {
+	listLen := len(d.lists)
+	if idx < 0 || idx >= listLen {
+		return fmt.Errorf("Index out of bounds: %v", idx)
+	}
 	d.lists[idx].listItems = append(d.lists[idx].listItems, ListItem{itemName: taskTitle})
 	return nil
 }
 
+// Save saves the content of Data onto the file (taskgo.md).
 func (d *Data) Save() {
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
