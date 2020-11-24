@@ -36,6 +36,7 @@ var validPrefixes = [...]string{
 	"* ",
 }
 
+// Checks if the file(taskgo.md) is present in the current directory or not.
 func CheckFile() bool {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -48,6 +49,7 @@ func CheckFile() bool {
 	return err == nil
 }
 
+// Creates the file(taskgo.md).
 func CreateFile() {
 	f, err := OpenFileWriteOnly()
 	defer f.Close()
@@ -57,6 +59,7 @@ func CreateFile() {
 	}
 }
 
+// Writes initial content to the file.
 func WriteInitialContent() {
 	f, err := OpenFileWriteOnly()
 	defer f.Close()
@@ -73,15 +76,17 @@ func WriteInitialContent() {
 	}
 }
 
+// Opens file in write only mode.
 func OpenFileWriteOnly() (*os.File, error) {
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("Cannot open file: %v", err)
 	}
 
 	return os.OpenFile(dir+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
+// Returns the name of current working directory.
 func GetDirectoryName() string {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -94,6 +99,7 @@ func GetDirectoryName() string {
 	return dirName
 }
 
+// Helper function to check prefix if it matches to the given set of prefix.
 func CheckPrefix(line string) bool {
 	result := false
 	for _, prefix := range validPrefixes {
@@ -105,6 +111,7 @@ func CheckPrefix(line string) bool {
 	return result
 }
 
+// Checks the file syntax for any errors.
 func CheckFileSyntax() bool {
 	fileContent := OpenFile(fileName)
 
@@ -120,6 +127,7 @@ func CheckFileSyntax() bool {
 	return true
 }
 
+// FilePath returns the complete path of file given the fileName.
 func FilePath(fileName string) (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -131,6 +139,8 @@ func FilePath(fileName string) (string, error) {
 	return filePath, nil
 }
 
+// OpenFile opens the given file and returns the content of file line by line
+// as a slice of string.
 func OpenFile(fileName string) []string {
 	filePath, err := FilePath(fileName)
 	if err != nil {
@@ -154,6 +164,8 @@ func OpenFile(fileName string) []string {
 	return fileContent
 }
 
+// WriteFile writes a slice of string to a file line by line.
+// It returns an error if file cannot be opened or the content can't be written.
 func WriteFile(fileContent []string, fileName string) error {
 	filePath, err := FilePath(fileName)
 	if err != nil {
