@@ -47,8 +47,20 @@ func (p *BoardPage) Page() tview.Primitive {
 		p.lists[i].SetTitle(listNames[i])
 
 		p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			// globalInputCapture(event)
-
+			switch event.Key() {
+			case tcell.KeyDown:
+				p.down()
+				return nil
+			case tcell.KeyUp:
+				p.up()
+				return nil
+			case tcell.KeyRight:
+				p.right()
+				return nil
+			case tcell.KeyLeft:
+				p.left()
+				return nil
+			}
 			switch event.Rune() {
 			case 'j':
 				p.down()
@@ -59,10 +71,11 @@ func (p *BoardPage) Page() tview.Primitive {
 			case 'l':
 				p.right()
 			case 'a':
-				pages.AddAndSwitchToPage("add", NewAddPage(), true)
+				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
 			case 'D':
 			case 'C':
 			case 'q':
+				p.data.Save()
 				app.Stop()
 			case '?':
 				pages.SwitchToPage("help")
@@ -115,4 +128,13 @@ func (p *BoardPage) right() {
 	listCount := len(p.lists)
 	p.activeListIdx = (p.activeListIdx + 1) % listCount
 	app.SetFocus(p.lists[p.activeListIdx])
+}
+
+func (p *BoardPage) redraw() {
+	activeListIdx := p.activeListIdx
+	p.lists[activeListIdx].Clear()
+	tasks := p.data.GetTasks(activeListIdx)
+	for _, item := range tasks {
+		p.lists[activeListIdx].AddItem(item, "", 0, nil)
+	}
 }
