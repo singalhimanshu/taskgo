@@ -9,10 +9,11 @@ import (
 )
 
 type BoardPage struct {
-	lists         []*tview.List
-	theme         *tview.Theme
-	data          parser.Data
-	activeListIdx int
+	lists          []*tview.List
+	theme          *tview.Theme
+	data           parser.Data
+	activeListIdx  int
+	activeTaskIdxs []int
 }
 
 func NewBoardPage() *BoardPage {
@@ -23,11 +24,14 @@ func NewBoardPage() *BoardPage {
 		log.Fatal(err)
 	}
 
+	listCount := len(data.GetListNames())
+
 	return &BoardPage{
-		lists:         make([]*tview.List, len(data.GetListNames())),
-		data:          data,
-		theme:         theme,
-		activeListIdx: 0,
+		lists:          make([]*tview.List, listCount),
+		data:           data,
+		theme:          theme,
+		activeListIdx:  0,
+		activeTaskIdxs: make([]int, listCount),
 	}
 }
 
@@ -73,6 +77,7 @@ func (p *BoardPage) Page() tview.Primitive {
 			case 'a':
 				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
 			case 'D':
+				p.removeTask()
 			case 'C':
 			case 'q':
 				p.data.Save()
@@ -107,6 +112,7 @@ func (p *BoardPage) down() {
 	curIdx := activeList.GetCurrentItem()
 	listLen := activeList.GetItemCount()
 	newIdx := (curIdx + 1) % listLen
+	p.activeTaskIdxs[p.activeListIdx] = newIdx
 	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
 }
 
@@ -115,6 +121,7 @@ func (p *BoardPage) up() {
 	curIdx := activeList.GetCurrentItem()
 	listLen := activeList.GetItemCount()
 	newIdx := (curIdx - 1 + listLen) % listLen
+	p.activeTaskIdxs[p.activeListIdx] = newIdx
 	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
 }
 
@@ -137,4 +144,15 @@ func (p *BoardPage) redraw() {
 	for _, item := range tasks {
 		p.lists[activeListIdx].AddItem(item, "", 0, nil)
 	}
+}
+
+func (p *BoardPage) removeTask() {
+	activeListIdx := p.activeListIdx
+	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
+	err := p.data.RemoveTask(activeListIdx, removeTaskIdx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	p.data.Save()
+	p.redraw()
 }

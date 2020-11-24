@@ -128,6 +128,22 @@ func (d *Data) AddNewTask(idx int, taskTitle string) error {
 	return nil
 }
 
+func (d *Data) RemoveTask(listIdx, taskIdx int) error {
+	listLen := len(d.lists)
+	if listIdx < 0 || listIdx >= listLen {
+		return fmt.Errorf("Index out of bounds(list): %v", listIdx)
+	}
+
+	taskListLen := len(d.lists[listIdx].listItems)
+	if taskIdx < 0 || taskIdx >= taskListLen {
+		return fmt.Errorf("Index out of bounds(task): %v", taskIdx)
+	}
+
+	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems[:taskIdx],
+		d.lists[listIdx].listItems[taskIdx+1:]...)
+	return nil
+}
+
 // Save saves the content of Data onto the file (taskgo.md).
 func (d *Data) Save() {
 	var fileContent []string
