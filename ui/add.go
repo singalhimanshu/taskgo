@@ -1,12 +1,21 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
-func NewAddPage() *tview.Form {
+func NewAddPage(p *BoardPage) *tview.Form {
 	form := tview.NewForm().
 		AddInputField("Task", "", 20, nil, nil).
-		AddInputField("Task Description", "", 20, nil, nil).
-		AddButton("Save", nil).
+		AddInputField("Task Description", "", 20, nil, nil)
+
+	form = form.AddButton("Save", func() {
+		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
+		p.data.AddNewTask(p.activeListIdx, taskName)
+		p.data.Save()
+		p.redraw()
+		pages.SwitchToPage("board")
+	}).
 		AddButton("Cancel", func() {
 			pages.RemovePage("add")
 			pages.SwitchToPage("board")
