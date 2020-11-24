@@ -66,12 +66,9 @@ func start() {
 
 	helpPage := NewHelpPage()
 
-	addPage := NewAddPage()
-
 	pages = tview.NewPages().
 		AddPage("board", boardPageFrame, true, true).
-		AddPage("help", helpPage, false, false).
-		AddPage("add", addPage, true, false)
+		AddPage("help", helpPage, false, false)
 
 	app.SetRoot(pages, true).SetFocus(boardPageFrame)
 }
