@@ -47,6 +47,7 @@ func defaultTheme() *tview.Theme {
 	}
 }
 
+// Start runs the application
 func Start() error {
 	app = tview.NewApplication()
 	start()

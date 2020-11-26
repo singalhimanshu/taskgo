@@ -64,7 +64,7 @@ func TestAddNewTask(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Run("successfully add a new task", func(t *testing.T) {
-		err = d.AddNewTask(0, "Task 2")
+		err = d.AddNewTask(0, "Task 2", "Task 2 Desc")
 		if err != nil {
 			t.Fatalf("unexpected error %v", err)
 		}

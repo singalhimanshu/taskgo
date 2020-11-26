@@ -4,6 +4,7 @@ import (
 	"github.com/rivo/tview"
 )
 
+// NewAddPage provides the form to create a new task.
 func NewAddPage(p *BoardPage) *tview.Form {
 	form := tview.NewForm().
 		AddInputField("Task", "", 20, nil, nil).

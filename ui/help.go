@@ -16,6 +16,7 @@ K: move task up
 q: quit
 `
 
+// NewHelpPage displays the help page that contains all the keybinds of the application
 func NewHelpPage() *tview.Modal {
 	help := tview.NewModal().
 		SetText(helpText).

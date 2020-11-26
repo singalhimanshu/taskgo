@@ -8,6 +8,7 @@ import (
 	"github.com/singalhimanshu/taskgo/parser"
 )
 
+// BoardPage contains all the information that the board page requires.
 type BoardPage struct {
 	lists          []*tview.List
 	theme          *tview.Theme
@@ -16,6 +17,7 @@ type BoardPage struct {
 	activeTaskIdxs []int
 }
 
+// NewBoardPage adds the data to BoardPage structure.
 func NewBoardPage() *BoardPage {
 	theme := defaultTheme()
 
@@ -35,6 +37,7 @@ func NewBoardPage() *BoardPage {
 	}
 }
 
+// Page displays the contents of the board.
 func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
 
