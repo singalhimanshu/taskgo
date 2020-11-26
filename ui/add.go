@@ -11,7 +11,8 @@ func NewAddPage(p *BoardPage) *tview.Form {
 
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
-		p.data.AddNewTask(p.activeListIdx, taskName)
+		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
+		p.data.AddNewTask(p.activeListIdx, taskName, taskDesc)
 		p.data.Save()
 		p.redraw()
 		pages.SwitchToPage("board")

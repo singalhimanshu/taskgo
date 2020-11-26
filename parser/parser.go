@@ -80,6 +80,26 @@ func (d *Data) ParseData() error {
 			})
 
 			d.lists[listLen-1] = currentList
+		} else if strings.HasPrefix(line, "> ") {
+			listLen := len(d.lists)
+
+			if listLen < 1 {
+				return fmt.Errorf("Error at line %v", lineNumber)
+			}
+
+			currentList := d.lists[listLen-1]
+			itemDescStartIndex := strings.Index(line, " ") + 1
+			itemDesc := line[itemDescStartIndex:]
+
+			listItemLen := len(currentList.listItems)
+
+			if listItemLen < 1 {
+				return fmt.Errorf("Error at line %v", lineNumber)
+			}
+
+			currentList.listItems[listItemLen-1].itemDescription = itemDesc
+
+			d.lists[listLen-1] = currentList
 		} else {
 			return fmt.Errorf("Error at line %v", lineNumber)
 		}
@@ -119,15 +139,20 @@ func (d *Data) GetTasks(idx int) []string {
 
 // AddNewTask adds a new task to a list provided the list index and the title of that task.
 // It returns an error if the index is out of bounds.
-func (d *Data) AddNewTask(idx int, taskTitle string) error {
+func (d *Data) AddNewTask(idx int, taskTitle, taskDesc string) error {
 	listLen := len(d.lists)
 	if idx < 0 || idx >= listLen {
 		return fmt.Errorf("Index out of bounds: %v", idx)
 	}
-	d.lists[idx].listItems = append(d.lists[idx].listItems, ListItem{itemName: taskTitle})
+	d.lists[idx].listItems = append(d.lists[idx].listItems, ListItem{
+		itemName:        taskTitle,
+		itemDescription: taskDesc,
+	})
 	return nil
 }
 
+// RemoveTask removes a task given the index of list and the task.
+// It returns an error if any of the index is out of bounds.
 func (d *Data) RemoveTask(listIdx, taskIdx int) error {
 	listLen := len(d.lists)
 	if listIdx < 0 || listIdx >= listLen {
@@ -153,6 +178,7 @@ func (d *Data) Save() {
 		fileContent = append(fileContent, "## "+list.listTitle)
 		for _, listItem := range list.listItems {
 			fileContent = append(fileContent, "\t- "+listItem.itemName)
+			fileContent = append(fileContent, "\t\t> "+listItem.itemDescription)
 		}
 		fileContent = append(fileContent, "\n")
 	}
