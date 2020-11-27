@@ -151,6 +151,15 @@ func (d *Data) AddNewTask(idx int, taskTitle, taskDesc string) error {
 	return nil
 }
 
+// TODO: Better error checking
+func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
+	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
+	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
+	d.AddNewTask(newListIdx, taskTitle, taskDesc)
+	err := d.RemoveTask(prevListIdx, prevTaskIdx)
+	return err
+}
+
 // RemoveTask removes a task given the index of list and the task.
 // It returns an error if any of the index is out of bounds.
 func (d *Data) RemoveTask(listIdx, taskIdx int) error {

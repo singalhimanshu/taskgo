@@ -9,8 +9,8 @@ l: right
 a: add task
 D: delete a task
 C: change/edit task
->: move task right
-<: move task left
+L: move task right
+H: move task left
 J: move task down
 K: move task up
 q: quit

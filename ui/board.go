@@ -81,6 +81,10 @@ func (p *BoardPage) Page() tview.Primitive {
 				p.moveDown()
 			case 'K':
 				p.moveUp()
+			case 'H':
+				p.moveLeft()
+			case 'L':
+				p.moveRight()
 			case 'a':
 				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
 			case 'D':
@@ -188,6 +192,43 @@ func (p *BoardPage) moveUp() {
 	p.data.Save()
 	p.redraw()
 	p.up()
+}
+
+func (p *BoardPage) moveLeft() {
+	activeListIdx := p.activeListIdx
+	if activeListIdx == 0 {
+		return
+	}
+	err := p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
+		activeListIdx, activeListIdx-1)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.data.Save()
+	p.redraw()
+	p.left()
+	p.redraw()
+}
+
+func (p *BoardPage) moveRight() {
+	activeListIdx := p.activeListIdx
+	listCount := len(p.lists)
+	if activeListIdx+1 >= listCount {
+		return
+	}
+	err := p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
+		activeListIdx, activeListIdx+1)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.data.Save()
+	p.redraw()
+	p.right()
+	p.redraw()
 }
 
 func (p *BoardPage) redraw() {
