@@ -77,6 +77,10 @@ func (p *BoardPage) Page() tview.Primitive {
 				p.left()
 			case 'l':
 				p.right()
+			case 'J':
+				p.moveDown()
+			case 'K':
+				p.moveUp()
 			case 'a':
 				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
 			case 'D':
@@ -140,6 +144,52 @@ func (p *BoardPage) right() {
 	app.SetFocus(p.lists[p.activeListIdx])
 }
 
+func (p *BoardPage) moveDown() {
+	activeListIdx := p.activeListIdx
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	activeTaskIdx := p.activeTaskIdxs[activeListIdx]
+	if activeTaskIdx+1 >= taskCount {
+		return
+	}
+
+	err = p.data.SwapListItems(activeListIdx,
+		activeTaskIdx,
+		activeTaskIdx+1)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.data.Save()
+	p.redraw()
+	p.down()
+}
+
+func (p *BoardPage) moveUp() {
+	activeListIdx := p.activeListIdx
+	activeTaskIdx := p.activeTaskIdxs[activeListIdx]
+	if activeTaskIdx == 0 {
+		return
+	}
+
+	err := p.data.SwapListItems(activeListIdx,
+		activeTaskIdx,
+		activeTaskIdx-1)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	p.data.Save()
+	p.redraw()
+	p.up()
+}
+
 func (p *BoardPage) redraw() {
 	activeListIdx := p.activeListIdx
 	p.lists[activeListIdx].Clear()
@@ -147,6 +197,7 @@ func (p *BoardPage) redraw() {
 	for _, item := range tasks {
 		p.lists[activeListIdx].AddItem(item, "", 0, nil)
 	}
+	p.lists[activeListIdx].SetCurrentItem(p.activeTaskIdxs[activeListIdx])
 }
 
 func (p *BoardPage) removeTask() {

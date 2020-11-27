@@ -188,3 +188,27 @@ func (d *Data) Save() {
 		log.Fatal(err)
 	}
 }
+
+func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
+	listCount := len(d.lists)
+	if listIdx >= listCount {
+		return fmt.Errorf("Index out of bounds (list): %v", listIdx)
+	}
+
+	swap(&d.lists[listIdx].listItems[taskIdxFirst],
+		&d.lists[listIdx].listItems[taskIdxSecond])
+
+	return nil
+}
+
+func (d *Data) GetTaskCount(listIdx int) (int, error) {
+	listCount := len(d.lists)
+	if listIdx >= listCount {
+		return 0, fmt.Errorf("Index out of bounds (list): %v", listIdx)
+	}
+	return len(d.lists[listIdx].listItems), nil
+}
+
+func swap(first, second *ListItem) {
+	*second, *first = *first, *second
+}
