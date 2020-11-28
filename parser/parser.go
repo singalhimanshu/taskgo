@@ -125,12 +125,12 @@ func (d *Data) GetListNames() []string {
 	return listNames
 }
 
-// GetTasks returns a list of all the tasks.
+// GetTasks returns a list of all the tasks of a particular list.
 // Example: ["Task 1", "Task 2"]
-func (d *Data) GetTasks(idx int) []string {
+func (d *Data) GetTasks(listIdx int) []string {
 	var tasks []string
 
-	for _, item := range d.lists[idx].listItems {
+	for _, item := range d.lists[listIdx].listItems {
 		tasks = append(tasks, item.itemName)
 	}
 
@@ -139,37 +139,58 @@ func (d *Data) GetTasks(idx int) []string {
 
 // AddNewTask adds a new task to a list provided the list index and the title of that task.
 // It returns an error if the index is out of bounds.
-func (d *Data) AddNewTask(idx int, taskTitle, taskDesc string) error {
-	listLen := len(d.lists)
-	if idx < 0 || idx >= listLen {
-		return fmt.Errorf("Index out of bounds: %v", idx)
+func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
 	}
-	d.lists[idx].listItems = append(d.lists[idx].listItems, ListItem{
+
+	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems, ListItem{
 		itemName:        taskTitle,
 		itemDescription: taskDesc,
 	})
 	return nil
 }
 
-// TODO: Better error checking
 func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(prevListIdx, listCount); err != nil {
+		return err
+	}
+	if err := checkBounds(newListIdx, listCount); err != nil {
+		return err
+	}
+
+	taskCount, err := d.GetTaskCount(prevListIdx)
+	if err != nil {
+		return err
+	}
+
+	if err := checkBounds(prevTaskIdx, taskCount); err != nil {
+		return err
+	}
+
 	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
 	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
 	d.AddNewTask(newListIdx, taskTitle, taskDesc)
-	err := d.RemoveTask(prevListIdx, prevTaskIdx)
+	err = d.RemoveTask(prevListIdx, prevTaskIdx)
 	return err
 }
 
 // RemoveTask removes a task given the index of list and the task.
 // It returns an error if any of the index is out of bounds.
 func (d *Data) RemoveTask(listIdx, taskIdx int) error {
-	listLen := len(d.lists)
-	if listIdx < 0 || listIdx >= listLen {
-		return fmt.Errorf("Index out of bounds(list): %v", listIdx)
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
 	}
 
-	taskListLen := len(d.lists[listIdx].listItems)
-	if taskIdx < 0 || taskIdx >= taskListLen {
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+
+	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return fmt.Errorf("Index out of bounds(task): %v", taskIdx)
 	}
 
@@ -199,9 +220,22 @@ func (d *Data) Save() {
 }
 
 func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
-	listCount := len(d.lists)
-	if listIdx >= listCount {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
 		return fmt.Errorf("Index out of bounds (list): %v", listIdx)
+	}
+
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+	err = checkBounds(taskIdxFirst, taskCount)
+	if err != nil {
+		return err
+	}
+	err = checkBounds(taskIdxSecond, taskCount)
+	if err != nil {
+		return err
 	}
 
 	swap(&d.lists[listIdx].listItems[taskIdxFirst],
@@ -211,13 +245,24 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 }
 
 func (d *Data) GetTaskCount(listIdx int) (int, error) {
-	listCount := len(d.lists)
-	if listIdx >= listCount {
-		return 0, fmt.Errorf("Index out of bounds (list): %v", listIdx)
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return 0, err
 	}
 	return len(d.lists[listIdx].listItems), nil
 }
 
+func (d *Data) GetListCount() int {
+	return len(d.lists)
+}
+
 func swap(first, second *ListItem) {
 	*second, *first = *first, *second
+}
+
+func checkBounds(idx, boundary int) error {
+	if idx < 0 || idx >= boundary {
+		return fmt.Errorf("Index Out of Bounds: %v", idx)
+	}
+	return nil
 }
