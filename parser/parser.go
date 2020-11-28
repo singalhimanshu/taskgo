@@ -152,6 +152,8 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
 	return nil
 }
 
+// MoveTask moves a task from one list to another.
+// It returns an error if any of the index is out of bounds.
 func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	listCount := d.GetListCount()
 	if err := checkBounds(prevListIdx, listCount); err != nil {
@@ -219,6 +221,8 @@ func (d *Data) Save() {
 	}
 }
 
+// SwapListItems swaps a task of one list with another list.
+// It returns an error if any of the index is out of bounds
 func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
@@ -244,6 +248,8 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	return nil
 }
 
+// GetTaskCount gives the task count of a particular list.
+// It returns an int(number of tasks) and an error(if the list index is out of bounds).
 func (d *Data) GetTaskCount(listIdx int) (int, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
