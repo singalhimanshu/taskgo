@@ -90,6 +90,7 @@ func (p *BoardPage) Page() tview.Primitive {
 			case 'D':
 				p.removeTask()
 			case 'C':
+				pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 			case 'q':
 				p.data.Save()
 				app.Stop()

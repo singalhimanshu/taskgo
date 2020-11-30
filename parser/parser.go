@@ -115,7 +115,6 @@ func (d *Data) GetBoardName() string {
 // GetListNames returns a list of all the list names.
 // Example: ["TODO", "DOING", "DONE"]
 func (d *Data) GetListNames() []string {
-
 	var listNames []string
 
 	for _, list := range d.lists {
@@ -123,6 +122,29 @@ func (d *Data) GetListNames() []string {
 	}
 
 	return listNames
+}
+
+func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return nil, err
+	}
+
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return nil, err
+	}
+
+	result := []string{
+		d.lists[listIdx].listItems[taskIdx].itemName,
+		d.lists[listIdx].listItems[taskIdx].itemDescription,
+	}
+
+	return result, nil
 }
 
 // GetTasks returns a list of all the tasks of a particular list.
@@ -149,6 +171,26 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
 		itemName:        taskTitle,
 		itemDescription: taskDesc,
 	})
+	return nil
+}
+
+func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
+	}
+
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return err
+	}
+
+	d.lists[listIdx].listItems[taskIdx].itemName = taskTitle
+	d.lists[listIdx].listItems[taskIdx].itemDescription = taskDesc
 	return nil
 }
 
