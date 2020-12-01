@@ -222,7 +222,10 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 
 	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
 	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
-	d.AddNewTask(newListIdx, taskTitle, taskDesc)
+	err = d.AddNewTask(newListIdx, taskTitle, taskDesc)
+	if err != nil {
+		return err
+	}
 	err = d.RemoveTask(prevListIdx, prevTaskIdx)
 	return err
 }

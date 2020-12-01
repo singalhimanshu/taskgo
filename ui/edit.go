@@ -21,7 +21,11 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
 		activeListIdx := p.activeListIdx
-		p.data.EditTask(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
+		err := p.data.EditTask(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
+		if err != nil {
+			panic(err)
+		}
+
 		p.data.Save()
 		p.redraw()
 		pages.SwitchToPage("board")
