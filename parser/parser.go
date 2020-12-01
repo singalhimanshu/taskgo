@@ -124,6 +124,9 @@ func (d *Data) GetListNames() []string {
 	return listNames
 }
 
+// GetTask gives the task title and description given the list index and
+// task index. It returns an array of string and error if any of the
+// index are out of bounds.
 func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
@@ -174,6 +177,9 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
 	return nil
 }
 
+// EditTask edits a task title and description given the index of (list
+// and task), task title and description. It returns an error if the
+// index are out of bounds.
 func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
@@ -300,6 +306,7 @@ func (d *Data) GetTaskCount(listIdx int) (int, error) {
 	return len(d.lists[listIdx].listItems), nil
 }
 
+// GetListCount returns the count of lists.
 func (d *Data) GetListCount() int {
 	return len(d.lists)
 }

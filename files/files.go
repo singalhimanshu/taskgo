@@ -36,7 +36,7 @@ var validPrefixes = [...]string{
 	"* ",
 }
 
-// Checks if the file(taskgo.md) is present in the current directory or not.
+// CheckFile checks if the file(taskgo.md) is present in the current directory or not.
 func CheckFile() bool {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -49,7 +49,7 @@ func CheckFile() bool {
 	return err == nil
 }
 
-// Creates the file(taskgo.md).
+// CreateFile Creates the file(taskgo.md).
 func CreateFile() {
 	f, err := OpenFileWriteOnly()
 	defer f.Close()
@@ -59,7 +59,7 @@ func CreateFile() {
 	}
 }
 
-// Writes initial content to the file.
+// WriteInitialContent Writes initial content to the file.
 func WriteInitialContent() {
 	f, err := OpenFileWriteOnly()
 	defer f.Close()
@@ -76,7 +76,7 @@ func WriteInitialContent() {
 	}
 }
 
-// Opens file in write only mode.
+// OpenFileWriteOnly opens file in write only mode.
 func OpenFileWriteOnly() (*os.File, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -86,7 +86,7 @@ func OpenFileWriteOnly() (*os.File, error) {
 	return os.OpenFile(dir+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
-// Returns the name of current working directory.
+// GetDirectoryName returns the name of current working directory.
 func GetDirectoryName() string {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -99,7 +99,7 @@ func GetDirectoryName() string {
 	return dirName
 }
 
-// Helper function to check prefix if it matches to the given set of prefix.
+// CheckPrefix helper function to check prefix if it matches to the given set of prefix.
 func CheckPrefix(line string) bool {
 	result := false
 	for _, prefix := range validPrefixes {
@@ -111,7 +111,7 @@ func CheckPrefix(line string) bool {
 	return result
 }
 
-// Checks the file syntax for any errors.
+// CheckFileSyntax Checks the file syntax for any errors.
 func CheckFileSyntax() bool {
 	fileContent := OpenFile(fileName)
 
