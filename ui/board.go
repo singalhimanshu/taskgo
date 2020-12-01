@@ -96,6 +96,8 @@ func (p *BoardPage) Page() tview.Primitive {
 				app.Stop()
 			case '?':
 				pages.SwitchToPage("help")
+			case ' ':
+				pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 			default:
 			}
 			return event
