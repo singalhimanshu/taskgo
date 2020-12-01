@@ -65,13 +65,13 @@ func (d *Data) ParseData() error {
 			})
 
 		} else if strings.HasPrefix(line, "- ") {
-			listLen := len(d.lists)
+			listCount := d.GetListCount()
 
-			if listLen < 1 {
+			if listCount < 1 {
 				return fmt.Errorf("Error at line %v", lineNumber)
 			}
 
-			currentList := d.lists[listLen-1]
+			currentList := d.lists[listCount-1]
 			itemNameStartIndex := strings.Index(line, " ") + 1
 			itemName := line[itemNameStartIndex:]
 
@@ -79,15 +79,15 @@ func (d *Data) ParseData() error {
 				itemName: itemName,
 			})
 
-			d.lists[listLen-1] = currentList
+			d.lists[listCount-1] = currentList
 		} else if strings.HasPrefix(line, "> ") {
-			listLen := len(d.lists)
+			listCount := d.GetListCount()
 
-			if listLen < 1 {
+			if listCount < 1 {
 				return fmt.Errorf("Error at line %v", lineNumber)
 			}
 
-			currentList := d.lists[listLen-1]
+			currentList := d.lists[listCount-1]
 			itemDescStartIndex := strings.Index(line, " ") + 1
 			itemDesc := line[itemDescStartIndex:]
 
@@ -99,7 +99,7 @@ func (d *Data) ParseData() error {
 
 			currentList.listItems[listItemLen-1].itemDescription = itemDesc
 
-			d.lists[listLen-1] = currentList
+			d.lists[listCount-1] = currentList
 		} else {
 			return fmt.Errorf("Error at line %v", lineNumber)
 		}
