@@ -125,6 +125,9 @@ func (p *BoardPage) down() {
 	activeList := p.lists[p.activeListIdx]
 	curIdx := activeList.GetCurrentItem()
 	listLen := activeList.GetItemCount()
+	if listLen == 0 {
+		return
+	}
 	newIdx := (curIdx + 1) % listLen
 	p.activeTaskIdxs[p.activeListIdx] = newIdx
 	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
@@ -134,6 +137,9 @@ func (p *BoardPage) up() {
 	activeList := p.lists[p.activeListIdx]
 	curIdx := activeList.GetCurrentItem()
 	listLen := activeList.GetItemCount()
+	if listLen == 0 {
+		return
+	}
 	newIdx := (curIdx - 1 + listLen) % listLen
 	p.activeTaskIdxs[p.activeListIdx] = newIdx
 	p.lists[p.activeListIdx].SetCurrentItem(newIdx)
@@ -202,7 +208,14 @@ func (p *BoardPage) moveLeft() {
 	if activeListIdx == 0 {
 		return
 	}
-	err := p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		panic(err)
+	}
+	if taskCount == 0 {
+		return
+	}
+	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
 		activeListIdx, activeListIdx-1)
 
 	if err != nil {
@@ -221,7 +234,15 @@ func (p *BoardPage) moveRight() {
 	if activeListIdx+1 >= listCount {
 		return
 	}
-	err := p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		panic(err)
+	}
+	if taskCount == 0 {
+		return
+	}
+
+	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
 		activeListIdx, activeListIdx+1)
 
 	if err != nil {

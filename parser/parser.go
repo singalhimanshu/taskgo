@@ -320,7 +320,7 @@ func swap(first, second *ListItem) {
 
 func checkBounds(idx, boundary int) error {
 	if idx < 0 || idx >= boundary {
-		return fmt.Errorf("Index Out of Bounds: %v", idx)
+		return fmt.Errorf("Index Out of Bounds: got %v, length: %v", idx, boundary)
 	}
 	return nil
 }
