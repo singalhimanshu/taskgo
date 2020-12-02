@@ -21,10 +21,12 @@ func NewAddPage(p *BoardPage) *tview.Form {
 		p.data.Save()
 		p.redraw()
 		pages.SwitchToPage("board")
+		app.SetFocus(p.lists[p.activeListIdx])
 	}).
 		AddButton("Cancel", func() {
 			pages.RemovePage("add")
 			pages.SwitchToPage("board")
+			app.SetFocus(p.lists[p.activeListIdx])
 		})
 
 	form.SetBorder(true).SetTitle("Create Task").SetTitleAlign(tview.AlignCenter)

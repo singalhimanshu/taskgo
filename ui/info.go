@@ -22,6 +22,7 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
 			if buttonLabel == "OK" {
 				pages.RemovePage("info")
 				pages.SwitchToPage("board")
+				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
 
