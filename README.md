@@ -11,6 +11,12 @@ Fast and simple terminal based Kanban board manager
 
 Make sure that you have [setup](https://golang.org/doc/install) go properly on your system and you have `$GOPATH/bin` in your `$PATH` variable (for linux/macOS) or environment variable for Windows.
 
+```sh
+$ go get -u github.com/singalhimanshu/taskgo
+```
+
+This will create a taskgo binary under `$GOPATH/bin` directory.
+
 ## Usage
 
 Simply run `taskgo`. This will create a taskgo.md file in your current directory.
@@ -29,4 +35,5 @@ You can press `?` in the application itself to see the keybinds. But for referen
 | D          | Delete a task                                  |
 | C          | Change/Edit a task                             |
 | Space      | View task information                          |
+| ?          | To view all these keybinds                     |
 | q          | Quit application                               |
