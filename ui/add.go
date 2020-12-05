@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/rivo/tview"
 )
 
@@ -12,7 +14,22 @@ func NewAddPage(p *BoardPage) *tview.Form {
 
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
+		taskName = strings.TrimSpace(taskName)
+		if len(taskName) <= 0 {
+			emptyModal := tview.NewModal().
+				SetText("Empty title name not allowed").
+				SetBackgroundColor(theme.PrimitiveBackgroundColor).
+				AddButtons([]string{"OK"}).
+				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+					if buttonLabel == "OK" {
+						pages.SwitchToPage("add")
+					}
+				})
+			pages.AddAndSwitchToPage("emptyTitle", emptyModal, true)
+			return
+		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
+		taskDesc = strings.TrimSpace(taskDesc)
 		err := p.data.AddNewTask(p.activeListIdx, taskName, taskDesc)
 		if err != nil {
 			panic(err)
