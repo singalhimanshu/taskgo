@@ -99,7 +99,7 @@ func GetDirectoryName() string {
 	return dirName
 }
 
-// CheckPrefix helper function to check prefix if it matches to the given set of prefix.
+// CheckPrefix checks prefix if it matches to the given set of prefix.
 func CheckPrefix(line string) bool {
 	result := false
 	for _, prefix := range validPrefixes {
@@ -109,22 +109,6 @@ func CheckPrefix(line string) bool {
 		}
 	}
 	return result
-}
-
-// CheckFileSyntax Checks the file syntax for any errors.
-func CheckFileSyntax() bool {
-	fileContent := OpenFile(fileName)
-
-	for _, line := range fileContent {
-		// ignore empty lines
-		if len(line) < 1 {
-			continue
-		}
-		if !CheckPrefix(line) {
-			return false
-		}
-	}
-	return true
 }
 
 // FilePath returns the complete path of file given the fileName.

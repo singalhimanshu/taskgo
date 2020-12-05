@@ -10,7 +10,7 @@ import (
 func main() {
 	checkFile := files.CheckFile()
 	if !checkFile {
-		fmt.Print("taskgo.md doesn't exist. Do you want to create one? (Y[es]/n[o]) ")
+		fmt.Print("taskgo.md doesn't exist. Do you want to create it? (Y[es]/n[o]) ")
 
 		var createFile string
 		fmt.Scanln(&createFile)
@@ -21,12 +21,6 @@ func main() {
 		} else {
 			return
 		}
-	}
-
-	checkFileSyntax := files.CheckFileSyntax()
-
-	if !checkFileSyntax {
-		panic("Cannot Parse file invalid syntax")
 	}
 
 	err := ui.Start()
