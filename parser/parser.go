@@ -46,7 +46,7 @@ func (d *Data) ParseData() error {
 		}
 
 		if !files.CheckPrefix(line) {
-			return fmt.Errorf("Error at line %v", lineNumber)
+			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 		}
 
 		if strings.HasPrefix(line, "# ") {
@@ -68,7 +68,7 @@ func (d *Data) ParseData() error {
 			listCount := d.GetListCount()
 
 			if listCount < 1 {
-				return fmt.Errorf("Error at line %v", lineNumber)
+				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
 
 			currentList := d.lists[listCount-1]
@@ -84,7 +84,7 @@ func (d *Data) ParseData() error {
 			listCount := d.GetListCount()
 
 			if listCount < 1 {
-				return fmt.Errorf("Error at line %v", lineNumber)
+				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
 
 			currentList := d.lists[listCount-1]
@@ -94,14 +94,14 @@ func (d *Data) ParseData() error {
 			listItemLen := len(currentList.listItems)
 
 			if listItemLen < 1 {
-				return fmt.Errorf("Error at line %v", lineNumber)
+				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
 
 			currentList.listItems[listItemLen-1].itemDescription = itemDesc
 
 			d.lists[listCount-1] = currentList
 		} else {
-			return fmt.Errorf("Error at line %v", lineNumber)
+			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 		}
 	}
 	return nil
@@ -261,7 +261,9 @@ func (d *Data) Save() {
 		fileContent = append(fileContent, "## "+list.listTitle)
 		for _, listItem := range list.listItems {
 			fileContent = append(fileContent, "\t- "+listItem.itemName)
-			fileContent = append(fileContent, "\t\t> "+listItem.itemDescription)
+			if len(listItem.itemDescription) > 0 {
+				fileContent = append(fileContent, "\t\t> "+listItem.itemDescription)
+			}
 		}
 		fileContent = append(fileContent, "\n")
 	}
