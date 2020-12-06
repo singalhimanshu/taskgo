@@ -11,6 +11,7 @@ import (
 func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
 	task, err := p.data.GetTask(listIdx, taskIdx)
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 

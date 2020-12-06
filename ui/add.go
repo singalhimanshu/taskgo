@@ -32,6 +32,7 @@ func NewAddPage(p *BoardPage) *tview.Form {
 		taskDesc = strings.TrimSpace(taskDesc)
 		err := p.data.AddNewTask(p.activeListIdx, taskName, taskDesc)
 		if err != nil {
+			app.Stop()
 			panic(err)
 		}
 

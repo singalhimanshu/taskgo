@@ -48,9 +48,10 @@ func (p *BoardPage) Page() tview.Primitive {
 
 		p.lists[i].
 			ShowSecondaryText(false).
-			SetBorder(true).
-			SetBorderColor(theme.BorderColor)
-
+			SetBorder(true)
+		if i == 0 {
+			p.lists[i].SetBorderColor(theme.ContrastBackgroundColor)
+		}
 		p.lists[i].SetTitle(listNames[i])
 
 		p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -147,13 +148,17 @@ func (p *BoardPage) up() {
 
 func (p *BoardPage) left() {
 	listCount := len(p.lists)
+	p.lists[p.activeListIdx].SetBorderColor(theme.PrimitiveBackgroundColor)
 	p.activeListIdx = (p.activeListIdx - 1 + listCount) % listCount
+	p.lists[p.activeListIdx].SetBorderColor(theme.ContrastBackgroundColor)
 	app.SetFocus(p.lists[p.activeListIdx])
 }
 
 func (p *BoardPage) right() {
 	listCount := len(p.lists)
+	p.lists[p.activeListIdx].SetBorderColor(theme.PrimitiveBackgroundColor)
 	p.activeListIdx = (p.activeListIdx + 1) % listCount
+	p.lists[p.activeListIdx].SetBorderColor(theme.ContrastBackgroundColor)
 	app.SetFocus(p.lists[p.activeListIdx])
 }
 
@@ -162,6 +167,7 @@ func (p *BoardPage) moveDown() {
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
@@ -175,6 +181,7 @@ func (p *BoardPage) moveDown() {
 		activeTaskIdx+1)
 
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
@@ -195,6 +202,7 @@ func (p *BoardPage) moveUp() {
 		activeTaskIdx-1)
 
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
@@ -210,6 +218,7 @@ func (p *BoardPage) moveLeft() {
 	}
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
+		app.Stop()
 		panic(err)
 	}
 	if taskCount == 0 {
@@ -219,14 +228,25 @@ func (p *BoardPage) moveLeft() {
 		activeListIdx, activeListIdx-1)
 
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
 	p.data.Save()
+	taskCount, err = p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		app.Stop()
+		panic(err)
+	}
+	if taskCount > 0 && p.activeTaskIdxs[p.activeListIdx] >= taskCount {
+		p.activeTaskIdxs[p.activeListIdx]--
+	}
+
 	p.redraw()
 	p.left()
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
 	if err != nil {
+		app.Stop()
 		panic(err)
 	}
 	if lastIdx > 0 {
@@ -243,6 +263,7 @@ func (p *BoardPage) moveRight() {
 	}
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
+		app.Stop()
 		panic(err)
 	}
 	if taskCount == 0 {
@@ -253,14 +274,24 @@ func (p *BoardPage) moveRight() {
 		activeListIdx, activeListIdx+1)
 
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
 	p.data.Save()
 	p.redraw()
+	taskCount, err = p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		app.Stop()
+		panic(err)
+	}
+	if taskCount > 0 && p.activeTaskIdxs[p.activeListIdx] >= taskCount {
+		p.activeTaskIdxs[p.activeListIdx]--
+	}
 	p.right()
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
 	if err != nil {
+		app.Stop()
 		panic(err)
 	}
 	if lastIdx > 0 {
@@ -284,6 +315,7 @@ func (p *BoardPage) removeTask() {
 	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
 	err := p.data.RemoveTask(activeListIdx, removeTaskIdx)
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 	p.data.Save()

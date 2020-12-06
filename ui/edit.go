@@ -10,6 +10,7 @@ import (
 func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 	task, err := p.data.GetTask(listIdx, taskIdx)
 	if err != nil {
+		app.Stop()
 		log.Fatal(err)
 	}
 
@@ -23,6 +24,7 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 		activeListIdx := p.activeListIdx
 		err := p.data.EditTask(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
 		if err != nil {
+			app.Stop()
 			panic(err)
 		}
 
