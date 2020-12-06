@@ -225,6 +225,13 @@ func (p *BoardPage) moveLeft() {
 	p.data.Save()
 	p.redraw()
 	p.left()
+	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
+	if err != nil {
+		panic(err)
+	}
+	if lastIdx > 0 {
+		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
+	}
 	p.redraw()
 }
 
@@ -252,6 +259,13 @@ func (p *BoardPage) moveRight() {
 	p.data.Save()
 	p.redraw()
 	p.right()
+	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
+	if err != nil {
+		panic(err)
+	}
+	if lastIdx > 0 {
+		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
+	}
 	p.redraw()
 }
 
