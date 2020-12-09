@@ -16,16 +16,8 @@ func NewAddPage(p *BoardPage) *tview.Form {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
 		if len(taskName) <= 0 {
-			emptyModal := tview.NewModal().
-				SetText("Empty title name not allowed").
-				SetBackgroundColor(theme.PrimitiveBackgroundColor).
-				AddButtons([]string{"OK"}).
-				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-					if buttonLabel == "OK" {
-						pages.SwitchToPage("add")
-					}
-				})
-			pages.AddAndSwitchToPage("emptyTitle", emptyModal, true)
+			emptyTitleNameModal := EmptyTitleNameModal()
+			pages.AddAndSwitchToPage("emptyTitle", emptyTitleNameModal, true)
 			return
 		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
@@ -50,4 +42,17 @@ func NewAddPage(p *BoardPage) *tview.Form {
 	form.SetBorder(true).SetTitle("Create Task").SetTitleAlign(tview.AlignCenter)
 
 	return form
+}
+
+func EmptyTitleNameModal() *tview.Modal {
+	emptyModal := tview.NewModal().
+		SetText("Empty title name not allowed").
+		SetBackgroundColor(theme.PrimitiveBackgroundColor).
+		AddButtons([]string{"OK"}).
+		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+			if buttonLabel == "OK" {
+				pages.SwitchToPage("add")
+			}
+		})
+	return emptyModal
 }

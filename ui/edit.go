@@ -2,6 +2,7 @@ package ui
 
 import (
 	"log"
+	"strings"
 
 	"github.com/rivo/tview"
 )
@@ -20,7 +21,14 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
+		taskName = strings.TrimSpace(taskName)
+		if len(taskName) <= 0 {
+			emptyTitleNameModal := EmptyTitleNameModal()
+			pages.AddAndSwitchToPage("emptyTitle", emptyTitleNameModal, true)
+			return
+		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
+		taskDesc = strings.TrimSpace(taskDesc)
 		activeListIdx := p.activeListIdx
 		err := p.data.EditTask(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
 		if err != nil {
