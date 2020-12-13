@@ -48,9 +48,9 @@ func defaultTheme() *tview.Theme {
 }
 
 // Start runs the application
-func Start() error {
+func Start(fileName string) error {
 	app = tview.NewApplication()
-	start()
+	start(fileName)
 
 	if err := app.Run(); err != nil {
 		return fmt.Errorf("Error running app: %s", err)
@@ -59,10 +59,10 @@ func Start() error {
 	return nil
 }
 
-func start() {
+func start(fileName string) {
 	theme = defaultTheme()
 
-	boardPage := NewBoardPage()
+	boardPage := NewBoardPage(fileName)
 	boardPageFrame := boardPage.Page()
 
 	pages = tview.NewPages().

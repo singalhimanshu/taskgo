@@ -15,14 +15,15 @@ type BoardPage struct {
 	data           parser.Data
 	activeListIdx  int
 	activeTaskIdxs []int
+	fileName       string
 }
 
 // NewBoardPage adds the data to BoardPage structure.
-func NewBoardPage() *BoardPage {
+func NewBoardPage(fileName string) *BoardPage {
 	theme := defaultTheme()
 
 	data := parser.Data{}
-	if err := data.ParseData(); err != nil {
+	if err := data.ParseData(fileName); err != nil {
 		log.Fatal(err)
 	}
 
@@ -34,6 +35,7 @@ func NewBoardPage() *BoardPage {
 		theme:          theme,
 		activeListIdx:  0,
 		activeTaskIdxs: make([]int, listCount),
+		fileName:       fileName,
 	}
 }
 
@@ -93,7 +95,7 @@ func (p *BoardPage) Page() tview.Primitive {
 			case 'C':
 				pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 			case 'q':
-				p.data.Save()
+				p.data.Save(p.fileName)
 				app.Stop()
 			case '?':
 				pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
@@ -185,7 +187,7 @@ func (p *BoardPage) moveDown() {
 		log.Fatal(err)
 	}
 
-	p.data.Save()
+	p.data.Save(p.fileName)
 	p.redraw()
 	p.down()
 }
@@ -206,7 +208,7 @@ func (p *BoardPage) moveUp() {
 		log.Fatal(err)
 	}
 
-	p.data.Save()
+	p.data.Save(p.fileName)
 	p.redraw()
 	p.up()
 }
@@ -232,7 +234,7 @@ func (p *BoardPage) moveLeft() {
 		log.Fatal(err)
 	}
 
-	p.data.Save()
+	p.data.Save(p.fileName)
 	taskCount, err = p.data.GetTaskCount(activeListIdx)
 	if err != nil {
 		app.Stop()
@@ -278,7 +280,7 @@ func (p *BoardPage) moveRight() {
 		log.Fatal(err)
 	}
 
-	p.data.Save()
+	p.data.Save(p.fileName)
 	p.redraw()
 	taskCount, err = p.data.GetTaskCount(activeListIdx)
 	if err != nil {
@@ -318,6 +320,6 @@ func (p *BoardPage) removeTask() {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save()
+	p.data.Save(p.fileName)
 	p.redraw()
 }

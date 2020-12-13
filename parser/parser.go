@@ -8,8 +8,6 @@ import (
 	"github.com/singalhimanshu/taskgo/files"
 )
 
-const fileName = "/taskgo.md"
-
 // A Data represents the board name and a slice of list.
 type Data struct {
 	boardName string
@@ -30,10 +28,10 @@ type ListItem struct {
 
 // ParseData parses the contents of the file (taskgo.md) to custom type Data
 // It returns an error if the syntax of file is incorrect
-func (d *Data) ParseData() error {
-	fileFound := files.CheckFile()
+func (d *Data) ParseData(fileName string) error {
+	fileFound := files.CheckFile(fileName)
 	if !fileFound {
-		files.CreateFile()
+		files.CreateFile(fileName)
 	}
 	fileContent := files.OpenFile(fileName)
 
@@ -253,7 +251,7 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) error {
 }
 
 // Save saves the content of Data onto the file (taskgo.md).
-func (d *Data) Save() {
+func (d *Data) Save(fileName string) {
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
 

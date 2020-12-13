@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-const fileName = "/taskgo.md"
-
 const initialFileContent = `# %s
 
 ## %s
@@ -37,7 +35,7 @@ var validPrefixes = [...]string{
 }
 
 // CheckFile checks if the file(taskgo.md) is present in the current directory or not.
-func CheckFile() bool {
+func CheckFile(fileName string) bool {
 	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -50,8 +48,8 @@ func CheckFile() bool {
 }
 
 // CreateFile Creates the file(taskgo.md).
-func CreateFile() {
-	f, err := OpenFileWriteOnly()
+func CreateFile(fileName string) {
+	f, err := OpenFileWriteOnly(fileName)
 	defer f.Close()
 
 	if err != nil {
@@ -60,8 +58,8 @@ func CreateFile() {
 }
 
 // WriteInitialContent Writes initial content to the file.
-func WriteInitialContent() {
-	f, err := OpenFileWriteOnly()
+func WriteInitialContent(fileName string) {
+	f, err := OpenFileWriteOnly(fileName)
 	defer f.Close()
 
 	if err != nil {
@@ -77,7 +75,7 @@ func WriteInitialContent() {
 }
 
 // OpenFileWriteOnly opens file in write only mode.
-func OpenFileWriteOnly() (*os.File, error) {
+func OpenFileWriteOnly(fileName string) (*os.File, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("Cannot open file: %v", err)

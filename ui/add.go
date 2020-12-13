@@ -28,7 +28,7 @@ func NewAddPage(p *BoardPage) *tview.Form {
 			panic(err)
 		}
 
-		p.data.Save()
+		p.data.Save(p.fileName)
 		p.redraw()
 		pages.SwitchToPage("board")
 		app.SetFocus(p.lists[p.activeListIdx])
