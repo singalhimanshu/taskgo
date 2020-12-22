@@ -33,6 +33,7 @@ You can press `?` in the application itself to see the keybinds. But for referen
 | L/H        | Move task left/right the lists                 |
 | a          | Add a new task                                 |
 | D          | Delete a task                                  |
+| d          | Mark a task as done                            |
 | C          | Change/Edit a task                             |
 | Space      | View task information                          |
 | ?          | To view all these keybinds                     |

@@ -8,6 +8,7 @@ h: left
 l: right
 a: add task
 D: delete a task
+d: mark a task as done
 C: change/edit task
 L: move task right
 H: move task left
@@ -23,7 +24,7 @@ func NewHelpPage(p *BoardPage) *tview.Modal {
 		SetText(helpText).
 		SetBackgroundColor(theme.PrimitiveBackgroundColor).
 		AddButtons([]string{"OK"}).
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		SetDoneFunc(func(_ int, buttonLabel string) {
 			if buttonLabel == "OK" {
 				pages.HidePage("help")
 				pages.SwitchToPage("board")

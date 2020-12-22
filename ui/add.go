@@ -29,7 +29,7 @@ func NewAddPage(p *BoardPage) *tview.Form {
 		}
 
 		p.data.Save(p.fileName)
-		p.redraw()
+		p.redraw(p.activeListIdx)
 		pages.SwitchToPage("board")
 		app.SetFocus(p.lists[p.activeListIdx])
 	}).

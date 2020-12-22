@@ -92,6 +92,8 @@ func (p *BoardPage) Page() tview.Primitive {
 				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
 			case 'D':
 				p.removeTask()
+			case 'd':
+				p.taskCompleted()
 			case 'C':
 				pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 			case 'q':
@@ -188,7 +190,7 @@ func (p *BoardPage) moveDown() {
 	}
 
 	p.data.Save(p.fileName)
-	p.redraw()
+	p.redraw(p.activeListIdx)
 	p.down()
 }
 
@@ -209,7 +211,7 @@ func (p *BoardPage) moveUp() {
 	}
 
 	p.data.Save(p.fileName)
-	p.redraw()
+	p.redraw(p.activeListIdx)
 	p.up()
 }
 
@@ -235,16 +237,11 @@ func (p *BoardPage) moveLeft() {
 	}
 
 	p.data.Save(p.fileName)
-	taskCount, err = p.data.GetTaskCount(activeListIdx)
-	if err != nil {
+	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
-	if taskCount > 0 && p.activeTaskIdxs[p.activeListIdx] >= taskCount {
-		p.activeTaskIdxs[p.activeListIdx]--
-	}
-
-	p.redraw()
+	p.redraw(p.activeListIdx)
 	p.left()
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
 	if err != nil {
@@ -254,7 +251,7 @@ func (p *BoardPage) moveLeft() {
 	if lastIdx > 0 {
 		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
 	}
-	p.redraw()
+	p.redraw(p.activeListIdx)
 }
 
 func (p *BoardPage) moveRight() {
@@ -281,14 +278,10 @@ func (p *BoardPage) moveRight() {
 	}
 
 	p.data.Save(p.fileName)
-	p.redraw()
-	taskCount, err = p.data.GetTaskCount(activeListIdx)
-	if err != nil {
+	p.redraw(p.activeListIdx)
+	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
-		panic(err)
-	}
-	if taskCount > 0 && p.activeTaskIdxs[p.activeListIdx] >= taskCount {
-		p.activeTaskIdxs[p.activeListIdx]--
+		log.Fatal(err)
 	}
 	p.right()
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
@@ -299,16 +292,16 @@ func (p *BoardPage) moveRight() {
 	if lastIdx > 0 {
 		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
 	}
-	p.redraw()
+	p.redraw(p.activeListIdx)
 }
 
-func (p *BoardPage) redraw() {
-	activeListIdx := p.activeListIdx
-	p.lists[activeListIdx].Clear()
-	tasks := p.data.GetTasks(activeListIdx)
+func (p *BoardPage) redraw(listIdx int) {
+	p.lists[listIdx].Clear()
+	tasks := p.data.GetTasks(listIdx)
 	for _, item := range tasks {
-		p.lists[activeListIdx].AddItem(item, "", 0, nil)
+		p.lists[listIdx].AddItem(item, "", 0, nil)
 	}
+	activeListIdx := p.activeListIdx
 	p.lists[activeListIdx].SetCurrentItem(p.activeTaskIdxs[activeListIdx])
 }
 
@@ -321,5 +314,44 @@ func (p *BoardPage) removeTask() {
 		log.Fatal(err)
 	}
 	p.data.Save(p.fileName)
-	p.redraw()
+	p.redraw(activeListIdx)
+}
+
+func (p *BoardPage) taskCompleted() {
+	activeListIdx := p.activeListIdx
+	activeTaskIdx := p.activeTaskIdxs[activeListIdx]
+	listCount := p.data.GetListCount()
+	taskDoneIdx := listCount - 1
+	if activeListIdx == taskDoneIdx {
+		return
+	}
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+	if taskCount <= 0 {
+		return
+	}
+	if err := p.data.MoveTask(activeTaskIdx, activeListIdx, taskDoneIdx); err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+	p.redraw(activeListIdx)
+	p.redraw(taskDoneIdx)
+	if err := p.fixActiveTaskIdx(); err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+}
+
+func (p *BoardPage) fixActiveTaskIdx() error {
+	taskCount, err := p.data.GetTaskCount(p.activeListIdx)
+	if err != nil {
+		return err
+	}
+	if taskCount > 0 && p.activeTaskIdxs[p.activeListIdx] >= taskCount {
+		p.activeTaskIdxs[p.activeListIdx]--
+	}
+	return nil
 }

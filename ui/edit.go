@@ -37,7 +37,7 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 		}
 
 		p.data.Save(p.fileName)
-		p.redraw()
+		p.redraw(activeListIdx)
 		pages.SwitchToPage("board")
 		app.SetFocus(p.lists[p.activeListIdx])
 	}).
