@@ -31,6 +31,5 @@ func NewHelpPage(p *BoardPage) *tview.Modal {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-
 	return help
 }

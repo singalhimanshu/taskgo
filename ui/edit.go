@@ -14,11 +14,9 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	form := tview.NewForm().
 		AddInputField("Task", task[0], 20, nil, nil).
 		AddInputField("Task Description", task[1], 20, nil, nil)
-
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
@@ -35,7 +33,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 			app.Stop()
 			panic(err)
 		}
-
 		p.data.Save(p.fileName)
 		p.redraw(activeListIdx)
 		pages.SwitchToPage("board")
@@ -46,8 +43,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 			pages.SwitchToPage("board")
 			app.SetFocus(p.lists[p.activeListIdx])
 		})
-
 	form.SetBorder(true).SetTitle("Edit Task").SetTitleAlign(tview.AlignCenter)
-
 	return form
 }

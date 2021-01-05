@@ -14,7 +14,6 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	help := tview.NewModal().
 		SetText(fmt.Sprintf("Task: %v\n Task Description: %v", task[0], task[1])).
 		SetBackgroundColor(theme.PrimitiveBackgroundColor).
@@ -26,6 +25,5 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-
 	return help
 }

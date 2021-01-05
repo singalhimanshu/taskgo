@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -16,18 +15,12 @@ var (
 
 var globalInputCapture = func(event *tcell.EventKey) *tcell.EventKey {
 	s := string(event.Rune())
-
-	log.Println("globalInputCapture function called: ", s)
-
 	switch s {
 	case "?":
-		log.Println("switch to help page")
 		pages.SwitchToPage("help")
 	case "q":
-		log.Println("exiting")
 		app.Stop()
 	}
-
 	return event
 }
 
@@ -51,20 +44,16 @@ func defaultTheme() *tview.Theme {
 func Start(fileName string) error {
 	app = tview.NewApplication()
 	start(fileName)
-
 	if err := app.Run(); err != nil {
 		return fmt.Errorf("Error running app: %s", err)
 	}
-
 	return nil
 }
 
 func start(fileName string) {
 	theme = defaultTheme()
-
 	boardPage := NewBoardPage(fileName)
 	boardPageFrame := boardPage.Page()
-
 	pages = tview.NewPages().
 		AddPage("board", boardPageFrame, true, true)
 	app.SetRoot(pages, true).SetFocus(boardPageFrame)

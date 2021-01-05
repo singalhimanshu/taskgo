@@ -40,9 +40,7 @@ func CheckFile(fileName string) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	filePath := dir + fileName
-	log.Println(filePath)
 	_, err = os.Stat(filePath)
 	return err == nil
 }
@@ -51,7 +49,6 @@ func CheckFile(fileName string) bool {
 func CreateFile(fileName string) {
 	f, err := OpenFileWriteOnly(fileName)
 	defer f.Close()
-
 	if err != nil {
 		log.Fatalf("Cannot create file %q, ERR: %v", fileName, err)
 	}
@@ -61,14 +58,11 @@ func CreateFile(fileName string) {
 func WriteInitialContent(fileName string) {
 	f, err := OpenFileWriteOnly(fileName)
 	defer f.Close()
-
 	if err != nil {
 		log.Fatalf("Cannot Open file %q, ERR: %v", fileName, err)
 	}
-
 	// TODO: Make these customizable
 	_, err = f.WriteString(fmt.Sprintf(initialFileContent, GetDirectoryName(), "TODO", "DOING", "DONE"))
-
 	if err != nil {
 		log.Fatalf("Cannot write contents to file (%v): %v", fileName, err)
 	}
@@ -80,7 +74,6 @@ func OpenFileWriteOnly(fileName string) (*os.File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Cannot open file: %v", err)
 	}
-
 	return os.OpenFile(dir+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
@@ -90,10 +83,8 @@ func GetDirectoryName() string {
 	if err != nil {
 		log.Fatalf("Cannot get directory name: %v", err)
 	}
-
 	dirs := strings.Split(dir, "/")
 	dirName := dirs[len(dirs)-1]
-
 	return dirName
 }
 
@@ -115,9 +106,7 @@ func FilePath(fileName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	filePath := dir + fileName
-
 	return filePath, nil
 }
 
@@ -128,21 +117,17 @@ func OpenFile(fileName string) []string {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	file, err := os.Open(filePath)
 	defer file.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	var fileContent []string
-
 	for scanner.Scan() {
 		fileContent = append(fileContent, scanner.Text())
 	}
-
 	return fileContent
 }
 
@@ -153,17 +138,14 @@ func WriteFile(fileContent []string, fileName string) error {
 	if err != nil {
 		return err
 	}
-
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
 	w := bufio.NewWriter(file)
 	for _, line := range fileContent {
 		fmt.Fprintln(w, line)
 	}
-
 	return w.Flush()
 }

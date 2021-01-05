@@ -21,14 +21,11 @@ type BoardPage struct {
 // NewBoardPage adds the data to BoardPage structure.
 func NewBoardPage(fileName string) *BoardPage {
 	theme := defaultTheme()
-
 	data := parser.Data{}
 	if err := data.ParseData(fileName); err != nil {
 		log.Fatal(err)
 	}
-
 	listCount := len(data.GetListNames())
-
 	return &BoardPage{
 		lists:          make([]*tview.List, listCount),
 		data:           data,
@@ -42,87 +39,27 @@ func NewBoardPage(fileName string) *BoardPage {
 // Page displays the contents of the board.
 func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
-
 	listNames := p.data.GetListNames()
-
 	for i := 0; i < len(listNames); i++ {
 		p.lists[i] = tview.NewList()
-
 		p.lists[i].
 			ShowSecondaryText(false).
 			SetBorder(true)
+		// Highlights the first list
 		if i == 0 {
 			p.lists[i].SetBorderColor(theme.ContrastBackgroundColor)
 		}
 		p.lists[i].SetTitle(listNames[i])
-
-		p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Key() {
-			case tcell.KeyDown:
-				p.down()
-				return nil
-			case tcell.KeyUp:
-				p.up()
-				return nil
-			case tcell.KeyRight:
-				p.right()
-				return nil
-			case tcell.KeyLeft:
-				p.left()
-				return nil
-			}
-			switch event.Rune() {
-			case 'j':
-				p.down()
-			case 'k':
-				p.up()
-			case 'h':
-				p.left()
-			case 'l':
-				p.right()
-			case 'J':
-				p.moveDown()
-			case 'K':
-				p.moveUp()
-			case 'H':
-				p.moveLeft()
-			case 'L':
-				p.moveRight()
-			case 'a':
-				pages.AddAndSwitchToPage("add", NewAddPage(p), true)
-			case 'D':
-				p.removeTask()
-			case 'd':
-				p.taskCompleted()
-			case 'C':
-				pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
-			case 'q':
-				p.data.Save(p.fileName)
-				app.Stop()
-			case '?':
-				pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
-			case ' ':
-				pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
-			default:
-			}
-			return event
-		})
-
-		for _, item := range p.data.GetTasks(i) {
-			p.lists[i].AddItem(item, "", 0, nil)
-		}
-
+		p.setInputCapture(i)
+		p.addTasksToList(i)
 		flex.AddItem(p.lists[i], 0, 1, i == 0)
 	}
-
 	boardName := p.data.GetBoardName()
 	boardName = "Board: " + boardName
-
 	frame := tview.NewFrame(flex).
 		SetBorders(0, 0, 1, 0, 1, 1).
 		AddText(boardName, true, tview.AlignCenter, p.theme.TitleColor).
 		AddText("?: help \t q:quit", false, tview.AlignCenter, p.theme.PrimaryTextColor)
-
 	return frame
 }
 
@@ -169,26 +106,21 @@ func (p *BoardPage) right() {
 func (p *BoardPage) moveDown() {
 	activeListIdx := p.activeListIdx
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
-
 	if err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	activeTaskIdx := p.activeTaskIdxs[activeListIdx]
 	if activeTaskIdx+1 >= taskCount {
 		return
 	}
-
 	err = p.data.SwapListItems(activeListIdx,
 		activeTaskIdx,
 		activeTaskIdx+1)
-
 	if err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	p.data.Save(p.fileName)
 	p.redraw(p.activeListIdx)
 	p.down()
@@ -200,16 +132,13 @@ func (p *BoardPage) moveUp() {
 	if activeTaskIdx == 0 {
 		return
 	}
-
 	err := p.data.SwapListItems(activeListIdx,
 		activeTaskIdx,
 		activeTaskIdx-1)
-
 	if err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	p.data.Save(p.fileName)
 	p.redraw(p.activeListIdx)
 	p.up()
@@ -230,12 +159,10 @@ func (p *BoardPage) moveLeft() {
 	}
 	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
 		activeListIdx, activeListIdx-1)
-
 	if err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	p.data.Save(p.fileName)
 	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
@@ -268,7 +195,6 @@ func (p *BoardPage) moveRight() {
 	if taskCount == 0 {
 		return
 	}
-
 	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
 		activeListIdx, activeListIdx+1)
 
@@ -276,7 +202,6 @@ func (p *BoardPage) moveRight() {
 		app.Stop()
 		log.Fatal(err)
 	}
-
 	p.data.Save(p.fileName)
 	p.redraw(p.activeListIdx)
 	if err := p.fixActiveTaskIdx(); err != nil {
@@ -354,4 +279,64 @@ func (p *BoardPage) fixActiveTaskIdx() error {
 		p.activeTaskIdxs[p.activeListIdx]--
 	}
 	return nil
+}
+
+func (p *BoardPage) setInputCapture(i int) {
+	p.lists[i].SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyDown:
+			p.down()
+			return nil
+		case tcell.KeyUp:
+			p.up()
+			return nil
+		case tcell.KeyRight:
+			p.right()
+			return nil
+		case tcell.KeyLeft:
+			p.left()
+			return nil
+		}
+		switch event.Rune() {
+		case 'j':
+			p.down()
+		case 'k':
+			p.up()
+		case 'h':
+			p.left()
+		case 'l':
+			p.right()
+		case 'J':
+			p.moveDown()
+		case 'K':
+			p.moveUp()
+		case 'H':
+			p.moveLeft()
+		case 'L':
+			p.moveRight()
+		case 'a':
+			pages.AddAndSwitchToPage("add", NewAddPage(p), true)
+		case 'D':
+			p.removeTask()
+		case 'd':
+			p.taskCompleted()
+		case 'C':
+			pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+		case 'q':
+			p.data.Save(p.fileName)
+			app.Stop()
+		case '?':
+			pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
+		case ' ':
+			pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+		default:
+		}
+		return event
+	})
+}
+
+func (p *BoardPage) addTasksToList(listIdx int) {
+	for _, item := range p.data.GetTasks(listIdx) {
+		p.lists[listIdx].AddItem(item, "", 0, nil)
+	}
 }

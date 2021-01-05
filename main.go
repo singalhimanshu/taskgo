@@ -21,10 +21,8 @@ func main() {
 	checkFile := files.CheckFile("/" + *fileName)
 	if !checkFile {
 		fmt.Printf("%q doesn't exist. Do you want to create it? (Y[es]/n[o]) ", *fileName)
-
 		var createFile string
 		fmt.Scanln(&createFile)
-
 		if createFile == "y" || createFile == "Y" || createFile == "Yes" {
 			files.CreateFile("/" + *fileName)
 			files.WriteInitialContent("/" + *fileName)
@@ -32,9 +30,7 @@ func main() {
 			return
 		}
 	}
-
 	err := ui.Start("/" + *fileName)
-
 	if err != nil {
 		panic(err)
 	}

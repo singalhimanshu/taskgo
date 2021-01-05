@@ -34,69 +34,50 @@ func (d *Data) ParseData(fileName string) error {
 		files.CreateFile(fileName)
 	}
 	fileContent := files.OpenFile(fileName)
-
 	for lineNumber, line := range fileContent {
 		line = strings.TrimSpace(line)
-
 		// skip empty lines
 		if len(line) < 1 {
 			continue
 		}
-
 		if !files.CheckPrefix(line) {
 			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 		}
-
 		if strings.HasPrefix(line, "# ") {
 			boardNameStartingIndex := strings.Index(line, " ") + 1
 			boardName := line[boardNameStartingIndex:]
-
 			d.boardName = boardName
-
 		} else if strings.HasPrefix(line, "## ") {
-
 			listNameStartIndex := strings.Index(line, " ") + 1
 			listTitle := line[listNameStartIndex:]
-
 			d.lists = append(d.lists, List{
 				listTitle: listTitle,
 			})
-
 		} else if strings.HasPrefix(line, "- ") {
 			listCount := d.GetListCount()
-
 			if listCount < 1 {
 				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
-
 			currentList := d.lists[listCount-1]
 			itemNameStartIndex := strings.Index(line, " ") + 1
 			itemName := line[itemNameStartIndex:]
-
 			currentList.listItems = append(currentList.listItems, ListItem{
 				itemName: itemName,
 			})
-
 			d.lists[listCount-1] = currentList
 		} else if strings.HasPrefix(line, "> ") {
 			listCount := d.GetListCount()
-
 			if listCount < 1 {
 				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
-
 			currentList := d.lists[listCount-1]
 			itemDescStartIndex := strings.Index(line, " ") + 1
 			itemDesc := line[itemDescStartIndex:]
-
 			listItemLen := len(currentList.listItems)
-
 			if listItemLen < 1 {
 				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
-
 			currentList.listItems[listItemLen-1].itemDescription = itemDesc
-
 			d.lists[listCount-1] = currentList
 		} else {
 			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
@@ -114,11 +95,9 @@ func (d *Data) GetBoardName() string {
 // Example: ["TODO", "DOING", "DONE"]
 func (d *Data) GetListNames() []string {
 	var listNames []string
-
 	for _, list := range d.lists {
 		listNames = append(listNames, list.listTitle)
 	}
-
 	return listNames
 }
 
@@ -130,21 +109,17 @@ func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return nil, err
 	}
-
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
 		return nil, err
 	}
-
 	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return nil, err
 	}
-
 	result := []string{
 		d.lists[listIdx].listItems[taskIdx].itemName,
 		d.lists[listIdx].listItems[taskIdx].itemDescription,
 	}
-
 	return result, nil
 }
 
@@ -152,11 +127,9 @@ func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 // Example: ["Task 1", "Task 2"]
 func (d *Data) GetTasks(listIdx int) []string {
 	var tasks []string
-
 	for _, item := range d.lists[listIdx].listItems {
 		tasks = append(tasks, item.itemName)
 	}
-
 	return tasks
 }
 
@@ -167,7 +140,6 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return err
 	}
-
 	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems, ListItem{
 		itemName:        taskTitle,
 		itemDescription: taskDesc,
@@ -183,16 +155,13 @@ func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error 
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return err
 	}
-
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
 		return err
 	}
-
 	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return err
 	}
-
 	d.lists[listIdx].listItems[taskIdx].itemName = taskTitle
 	d.lists[listIdx].listItems[taskIdx].itemDescription = taskDesc
 	return nil
@@ -208,16 +177,13 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	if err := checkBounds(newListIdx, listCount); err != nil {
 		return err
 	}
-
 	taskCount, err := d.GetTaskCount(prevListIdx)
 	if err != nil {
 		return err
 	}
-
 	if err := checkBounds(prevTaskIdx, taskCount); err != nil {
 		return err
 	}
-
 	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
 	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
 	err = d.AddNewTask(newListIdx, taskTitle, taskDesc)
@@ -235,16 +201,13 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) error {
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return err
 	}
-
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
 		return err
 	}
-
 	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return fmt.Errorf("Index out of bounds(task): %v", taskIdx)
 	}
-
 	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems[:taskIdx],
 		d.lists[listIdx].listItems[taskIdx+1:]...)
 	return nil
@@ -254,7 +217,6 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) error {
 func (d *Data) Save(fileName string) {
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
-
 	for _, list := range d.lists {
 		fileContent = append(fileContent, "## "+list.listTitle)
 		for _, listItem := range list.listItems {
@@ -265,7 +227,6 @@ func (d *Data) Save(fileName string) {
 		}
 		fileContent = append(fileContent, "\n")
 	}
-
 	err := files.WriteFile(fileContent, fileName)
 	if err != nil {
 		log.Fatal(err)
@@ -279,7 +240,6 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return fmt.Errorf("Index out of bounds (list): %v", listIdx)
 	}
-
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
 		return err
@@ -292,10 +252,8 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	if err != nil {
 		return err
 	}
-
 	swap(&d.lists[listIdx].listItems[taskIdxFirst],
 		&d.lists[listIdx].listItems[taskIdxSecond])
-
 	return nil
 }
 
