@@ -331,7 +331,7 @@ func (p *BoardPage) setInputCapture(i int) {
 			app.Stop()
 		case '?':
 			pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
-		case ' ':
+		case rune(tcell.KeyEnter):
 			pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 		default:
 		}

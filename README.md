@@ -35,6 +35,6 @@ You can press `?` in the application itself to see the keybinds. But for referen
 | D          | Delete a task                                  |
 | d          | Mark a task as done                            |
 | C          | Change/Edit a task                             |
-| Space      | View task information                          |
+| Enter      | View task information                          |
 | ?          | To view all these keybinds                     |
 | q          | Quit application                               |

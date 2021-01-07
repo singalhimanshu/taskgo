@@ -14,7 +14,7 @@ L: move task right
 H: move task left
 J: move task down
 K: move task up
-Space: view task info
+Enter: view task info
 q: quit
 `
 
