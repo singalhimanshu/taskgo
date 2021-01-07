@@ -125,12 +125,16 @@ func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 
 // GetTasks returns a list of all the tasks of a particular list.
 // Example: ["Task 1", "Task 2"]
-func (d *Data) GetTasks(listIdx int) []string {
+func (d *Data) GetTasks(listIdx int) ([]string, error) {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return nil, err
+	}
 	var tasks []string
 	for _, item := range d.lists[listIdx].listItems {
 		tasks = append(tasks, item.itemName)
 	}
-	return tasks
+	return tasks, nil
 }
 
 // AddNewTask adds a new task to a list provided the list index and the title of that task.

@@ -222,7 +222,11 @@ func (p *BoardPage) moveRight() {
 
 func (p *BoardPage) redraw(listIdx int) {
 	p.lists[listIdx].Clear()
-	tasks := p.data.GetTasks(listIdx)
+	tasks, err := p.data.GetTasks(listIdx)
+	if err != nil {
+		app.Stop()
+		panic(err)
+	}
 	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
 	}
@@ -336,7 +340,12 @@ func (p *BoardPage) setInputCapture(i int) {
 }
 
 func (p *BoardPage) addTasksToList(listIdx int) {
-	for _, item := range p.data.GetTasks(listIdx) {
+	tasks, err := p.data.GetTasks(listIdx)
+	if err != nil {
+		app.Stop()
+		panic(err)
+	}
+	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
 	}
 }
