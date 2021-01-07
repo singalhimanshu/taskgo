@@ -324,7 +324,7 @@ func (p *BoardPage) setInputCapture(i int) {
 			p.removeTask()
 		case 'd':
 			p.taskCompleted()
-		case 'C':
+		case 'e':
 			pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 		case 'q':
 			p.data.Save(p.fileName)

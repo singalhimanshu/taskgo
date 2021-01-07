@@ -9,7 +9,7 @@ l: right
 a: add task
 D: delete a task
 d: mark a task as done
-C: change/edit task
+e: change/edit task
 L: move task right
 H: move task left
 J: move task down
