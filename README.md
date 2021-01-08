@@ -6,6 +6,10 @@ Fast and simple terminal based Kanban board manager
 
 ![Taskgo demo](./demo/taskgo.gif)
 
+## Features
+  * Vim Style keybinds
+  * Uses markdown file to store data (which is very readable)
+
 ## Install 
 **Note**: Currently the only way to install taskgo is to build from source.
 
