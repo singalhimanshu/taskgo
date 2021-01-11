@@ -302,13 +302,13 @@ func (p *BoardPage) setInputCapture(i int) {
 			return nil
 		}
 		switch event.Rune() {
-		case 'j', tcell.RuneDArrow:
+		case 'j':
 			p.down()
-		case 'k', tcell.RuneUArrow:
+		case 'k':
 			p.up()
-		case 'h', tcell.RuneLArrow:
+		case 'h':
 			p.left()
-		case 'l', tcell.RuneRArrow:
+		case 'l':
 			p.right()
 		case 'J':
 			p.moveDown()
