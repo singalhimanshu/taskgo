@@ -29,16 +29,17 @@ Simply run `taskgo`. This will create a taskgo.md file in your current directory
 
 You can press `?` in the application itself to see the keybinds. But for reference they are here as well - 
 
-| Key        | Description                                    |
-| ---        | ---                                            |
-| j/k        | Move down/up                                   |
-| l/h        | Move left/right                                |
-| J/K        | Move task down/up the list                     |
-| L/H        | Move task left/right the lists                 |
-| a          | Add a new task                                 |
-| D          | Delete a task                                  |
-| d          | Mark a task as done                            |
-| e          | Edit a task                                    |
-| Enter      | View task information                          |
-| ?          | To view all these keybinds                     |
-| q          | Quit application                               |
+| Key              | Description                    |
+| ---              | ---                            |
+| j/down arrow     | Move down                      |
+| k/up arrow       | Move up                        |
+| l/h              | Move left/right                |
+| J/K              | Move task down/up the list     |
+| L/H              | Move task left/right the lists |
+| a                | Add a new task                 |
+| D                | Delete a task                  |
+| d                | Mark a task as done            |
+| e                | Edit a task                    |
+| Enter            | View task information          |
+| ?                | To view all these keybinds     |
+| q                | Quit application               |
