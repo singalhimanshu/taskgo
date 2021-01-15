@@ -1,0 +1,39 @@
+name: github-acitons
+on:
+  push:
+    branches:
+      - master
+      - github-actions
+  pull_request:
+    branches:
+      - master
+      - github-actions
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        go-version: [1.14.x, 1.15.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install dependencies
+        run: |
+          go version
+          go get -u github.com/golangci/golangci-lint
+
+      - name: Lint
+        run: golangci-lint run
+
+      - name: Vet
+        run: go vet .
+
+      - name: Build
+        run: go build .
