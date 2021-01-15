@@ -29,6 +29,10 @@ jobs:
           go version
           go get -u github.com/golangci/golangci-lint
 
+      - name: Set env vars
+        run: |
+          echo "${HOME}/goroot/bin" >> $GITHUB_PATH
+
       - name: Lint
         run: golangci-lint run
 
