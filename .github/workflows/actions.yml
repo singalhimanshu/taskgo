@@ -24,17 +24,8 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Install dependencies
-        run: |
-          go version
-          go get -u github.com/golangci/golangci-lint
-
-      - name: Set env vars
-        run: |
-          echo "${HOME}/goroot/bin" >> $GITHUB_PATH
-
-      - name: Lint
-        run: golangci-lint run
+      - name: Check go version
+        run: go version
 
       - name: Vet
         run: go vet .
