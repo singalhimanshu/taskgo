@@ -2,7 +2,7 @@ name: github-acitons
 on:
   push:
     branches:
-      - master
+      - main
       - github-actions
   pull_request:
 
