@@ -333,6 +333,10 @@ func (p *BoardPage) setInputCapture(i int) {
 			pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
 		case rune(tcell.KeyEnter):
 			pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+		case 'g':
+			p.focusFirst()
+		case 'G':
+			p.focusLast()
 		default:
 		}
 		return event
@@ -348,4 +352,27 @@ func (p *BoardPage) addTasksToList(listIdx int) {
 	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
 	}
+}
+
+func (p *BoardPage) focusFirst() {
+	activeListIdx := p.activeListIdx
+	if p.activeTaskIdxs[activeListIdx] == 0 {
+		return
+	}
+	p.activeTaskIdxs[activeListIdx] = 0
+	p.redraw(activeListIdx)
+}
+
+func (p *BoardPage) focusLast() {
+	activeListIdx := p.activeListIdx
+	lastIdx, err := p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		app.Stop()
+		panic(err)
+	}
+	if p.activeTaskIdxs[activeListIdx] == lastIdx {
+		return
+	}
+	p.activeTaskIdxs[activeListIdx] = lastIdx
+	p.redraw(activeListIdx)
 }

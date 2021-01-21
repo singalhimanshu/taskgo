@@ -15,6 +15,8 @@ H: move task left
 J: move task down
 K: move task up
 Enter: view task info
+g: focus first item of list
+G: focus last item of list
 q: quit
 `
 
