@@ -381,6 +381,9 @@ func (p *BoardPage) focusLast() {
 	if p.activeTaskIdxs[activeListIdx] == lastIdx {
 		return
 	}
+	if lastIdx != 0 {
+		lastIdx--
+	}
 	p.activeTaskIdxs[activeListIdx] = lastIdx
 	p.redraw(activeListIdx)
 }
