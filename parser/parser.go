@@ -189,9 +189,13 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	if err := checkBounds(prevTaskIdx, taskCount); err != nil {
 		return err
 	}
+	newListTaskCount, err := d.GetTaskCount(newListIdx)
+	if err != nil {
+		return err
+	}
 	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
 	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
-	err = d.AddNewTask(newListIdx, taskTitle, taskDesc, 0)
+	err = d.AddNewTask(newListIdx, taskTitle, taskDesc, newListTaskCount-1)
 	if err != nil {
 		return err
 	}
