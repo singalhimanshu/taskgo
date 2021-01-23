@@ -6,7 +6,8 @@ const helpText = `j: down
 k: up
 h: left
 l: right
-a: add task
+a: add task under the cursor
+A: add task at the end of list
 D: delete a task
 d: mark a task as done
 e: change/edit task

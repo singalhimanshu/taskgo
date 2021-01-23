@@ -139,15 +139,16 @@ func (d *Data) GetTasks(listIdx int) ([]string, error) {
 
 // AddNewTask adds a new task to a list provided the list index and the title of that task.
 // It returns an error if the index is out of bounds.
-func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string) error {
+func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskPos int) error {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
 		return err
 	}
-	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems, ListItem{
+	newTask := ListItem{
 		itemName:        taskTitle,
 		itemDescription: taskDesc,
-	})
+	}
+	d.insertTask(listIdx, newTask, taskPos+1)
 	return nil
 }
 
@@ -190,7 +191,7 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	}
 	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
 	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
-	err = d.AddNewTask(newListIdx, taskTitle, taskDesc)
+	err = d.AddNewTask(newListIdx, taskTitle, taskDesc, 0)
 	if err != nil {
 		return err
 	}
@@ -274,6 +275,18 @@ func (d *Data) GetTaskCount(listIdx int) (int, error) {
 // GetListCount returns the count of lists.
 func (d *Data) GetListCount() int {
 	return len(d.lists)
+}
+
+func (d *Data) insertTask(listIdx int, task ListItem, taskPos int) {
+	if len(d.lists[listIdx].listItems) < 1 {
+		d.lists[listIdx].listItems = append(d.lists[listIdx].listItems, task)
+		return
+	}
+
+	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems, ListItem{})
+	copy(d.lists[listIdx].listItems[(taskPos+1):],
+		d.lists[listIdx].listItems[taskPos:])
+	d.lists[listIdx].listItems[taskPos] = task
 }
 
 func swap(first, second *ListItem) {

@@ -319,7 +319,15 @@ func (p *BoardPage) setInputCapture(i int) {
 		case 'L':
 			p.moveRight()
 		case 'a':
-			pages.AddAndSwitchToPage("add", NewAddPage(p), true)
+			taskPos := p.activeTaskIdxs[p.activeListIdx]
+			pages.AddAndSwitchToPage("add", NewAddPage(p, taskPos), true)
+		case 'A':
+			lastTaskPos, err := p.data.GetTaskCount(p.activeListIdx)
+			if err != nil {
+				app.Stop()
+				panic(err)
+			}
+			pages.AddAndSwitchToPage("add", NewAddPage(p, lastTaskPos-1), true)
 		case 'D':
 			p.removeTask()
 		case 'd':

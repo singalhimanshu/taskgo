@@ -7,7 +7,7 @@ import (
 )
 
 // NewAddPage provides the form to create a new task.
-func NewAddPage(p *BoardPage) *tview.Form {
+func NewAddPage(p *BoardPage, pos int) *tview.Form {
 	form := tview.NewForm().
 		AddInputField("Task", "", 20, nil, nil).
 		AddInputField("Task Description", "", 20, nil, nil)
@@ -21,13 +21,14 @@ func NewAddPage(p *BoardPage) *tview.Form {
 		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
 		taskDesc = strings.TrimSpace(taskDesc)
-		err := p.data.AddNewTask(p.activeListIdx, taskName, taskDesc)
+		err := p.data.AddNewTask(p.activeListIdx, taskName, taskDesc, pos)
 		if err != nil {
 			app.Stop()
 			panic(err)
 		}
 		p.data.Save(p.fileName)
 		p.redraw(p.activeListIdx)
+		p.down()
 		pages.SwitchToPage("board")
 		app.SetFocus(p.lists[p.activeListIdx])
 	}).
