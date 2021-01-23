@@ -236,9 +236,16 @@ func (p *BoardPage) redraw(listIdx int) {
 
 func (p *BoardPage) removeTask() {
 	activeListIdx := p.activeListIdx
-	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
-	err := p.data.RemoveTask(activeListIdx, removeTaskIdx)
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
+		app.Stop()
+		panic(err)
+	}
+	if taskCount < 1 {
+		return
+	}
+	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
+	if err := p.data.RemoveTask(activeListIdx, removeTaskIdx); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
