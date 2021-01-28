@@ -5,6 +5,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"github.com/singalhimanshu/taskgo/command"
 	"github.com/singalhimanshu/taskgo/parser"
 )
 
@@ -13,26 +14,29 @@ type BoardPage struct {
 	lists          []*tview.List
 	theme          *tview.Theme
 	data           parser.Data
+	command        *command.CommandManager
 	activeListIdx  int
 	activeTaskIdxs []int
-	fileName       string
 }
 
 // NewBoardPage adds the data to BoardPage structure.
 func NewBoardPage(fileName string) *BoardPage {
 	theme := defaultTheme()
-	data := parser.Data{}
-	if err := data.ParseData(fileName); err != nil {
+	data := parser.Data{
+		FileName: fileName,
+	}
+	if err := data.ParseData(); err != nil {
 		log.Fatal(err)
 	}
+	command := command.CreateNewCommand(&data)
 	listCount := len(data.GetListNames())
 	return &BoardPage{
 		lists:          make([]*tview.List, listCount),
 		data:           data,
+		command:        command,
 		theme:          theme,
 		activeListIdx:  0,
 		activeTaskIdxs: make([]int, listCount),
-		fileName:       fileName,
 	}
 }
 
@@ -114,14 +118,12 @@ func (p *BoardPage) moveDown() {
 	if activeTaskIdx+1 >= taskCount {
 		return
 	}
-	err = p.data.SwapListItems(activeListIdx,
-		activeTaskIdx,
-		activeTaskIdx+1)
-	if err != nil {
+	swapListItemCommand := command.CreateSwapListItemCommand(activeListIdx, activeTaskIdx, activeTaskIdx+1)
+	if err := p.command.Execute(swapListItemCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save(p.fileName)
+	p.data.Save()
 	p.redraw(p.activeListIdx)
 	p.down()
 }
@@ -132,14 +134,12 @@ func (p *BoardPage) moveUp() {
 	if activeTaskIdx == 0 {
 		return
 	}
-	err := p.data.SwapListItems(activeListIdx,
-		activeTaskIdx,
-		activeTaskIdx-1)
-	if err != nil {
+	swapListItemCommand := command.CreateSwapListItemCommand(activeListIdx, activeTaskIdx, activeTaskIdx-1)
+	if err := p.command.Execute(swapListItemCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save(p.fileName)
+	p.data.Save()
 	p.redraw(p.activeListIdx)
 	p.up()
 }
@@ -157,13 +157,12 @@ func (p *BoardPage) moveLeft() {
 	if taskCount == 0 {
 		return
 	}
-	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
-		activeListIdx, activeListIdx-1)
-	if err != nil {
+	moveTaskCommand := command.CreateMoveTaskCommand(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx-1)
+	if err := p.command.Execute(moveTaskCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save(p.fileName)
+	p.data.Save()
 	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
 		log.Fatal(err)
@@ -195,14 +194,12 @@ func (p *BoardPage) moveRight() {
 	if taskCount == 0 {
 		return
 	}
-	err = p.data.MoveTask(p.activeTaskIdxs[activeListIdx],
-		activeListIdx, activeListIdx+1)
-
-	if err != nil {
+	moveTaskCommand := command.CreateMoveTaskCommand(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx+1)
+	if err := p.command.Execute(moveTaskCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save(p.fileName)
+	p.data.Save()
 	p.redraw(p.activeListIdx)
 	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
@@ -245,11 +242,12 @@ func (p *BoardPage) removeTask() {
 		return
 	}
 	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
-	if err := p.data.RemoveTask(activeListIdx, removeTaskIdx); err != nil {
+	err = p.data.RemoveTask(activeListIdx, removeTaskIdx)
+	if err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
-	p.data.Save(p.fileName)
+	p.data.Save()
 	p.redraw(activeListIdx)
 }
 
@@ -269,7 +267,8 @@ func (p *BoardPage) taskCompleted() {
 	if taskCount <= 0 {
 		return
 	}
-	if err := p.data.MoveTask(activeTaskIdx, activeListIdx, taskDoneIdx); err != nil {
+	moveTaskCommand := command.CreateMoveTaskCommand(activeTaskIdx, activeListIdx, taskDoneIdx)
+	if err := p.command.Execute(moveTaskCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
@@ -307,6 +306,13 @@ func (p *BoardPage) setInputCapture(i int) {
 		case tcell.KeyLeft:
 			p.left()
 			return nil
+		case tcell.KeyCtrlR:
+			err := p.command.Redo()
+			if err != nil {
+				app.Stop()
+				panic(err)
+			}
+			p.redrawAll()
 		}
 		switch event.Rune() {
 		case 'j', tcell.RuneDArrow:
@@ -341,8 +347,15 @@ func (p *BoardPage) setInputCapture(i int) {
 			p.taskCompleted()
 		case 'e':
 			pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+		case 'u':
+			err := p.command.Undo()
+			if err != nil {
+				app.Stop()
+				panic(err)
+			}
+			p.redrawAll()
 		case 'q':
-			p.data.Save(p.fileName)
+			p.data.Save()
 			app.Stop()
 		case '?':
 			pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
@@ -393,4 +406,11 @@ func (p *BoardPage) focusLast() {
 	}
 	p.activeTaskIdxs[activeListIdx] = lastIdx
 	p.redraw(activeListIdx)
+}
+
+func (p *BoardPage) redrawAll() {
+	listCount := len(p.lists)
+	for listIdx := 0; listIdx < listCount; listIdx++ {
+		p.redraw(listIdx)
+	}
 }

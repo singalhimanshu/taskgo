@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/rivo/tview"
+	"github.com/singalhimanshu/taskgo/command"
 )
 
 // NewAddPage provides the form to create a new task.
@@ -21,12 +22,11 @@ func NewAddPage(p *BoardPage, pos int) *tview.Form {
 		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
 		taskDesc = strings.TrimSpace(taskDesc)
-		err := p.data.AddNewTask(p.activeListIdx, taskName, taskDesc, pos)
-		if err != nil {
+		addTaskCommand := command.CreateAddTaskCommand(p.activeListIdx, taskName, taskDesc, pos)
+		if err := p.command.Execute(addTaskCommand); err != nil {
 			app.Stop()
 			panic(err)
 		}
-		p.data.Save(p.fileName)
 		p.redraw(p.activeListIdx)
 		p.down()
 		pages.SwitchToPage("board")
