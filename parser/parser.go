@@ -12,6 +12,7 @@ import (
 type Data struct {
 	boardName string
 	lists     []List
+	FileName  string
 }
 
 // A List represents the title of list and a list of items inside it (i.e tasks).
@@ -28,12 +29,12 @@ type ListItem struct {
 
 // ParseData parses the contents of the file (taskgo.md) to custom type Data
 // It returns an error if the syntax of file is incorrect
-func (d *Data) ParseData(fileName string) error {
-	fileFound := files.CheckFile(fileName)
+func (d *Data) ParseData() error {
+	fileFound := files.CheckFile(d.FileName)
 	if !fileFound {
-		files.CreateFile(fileName)
+		files.CreateFile(d.FileName)
 	}
-	fileContent := files.OpenFile(fileName)
+	fileContent := files.OpenFile(d.FileName)
 	for lineNumber, line := range fileContent {
 		line = strings.TrimSpace(line)
 		// skip empty lines
@@ -149,6 +150,7 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskPos int) 
 		itemDescription: taskDesc,
 	}
 	d.insertTask(listIdx, newTask, taskPos+1)
+	d.Save()
 	return nil
 }
 
@@ -169,6 +171,7 @@ func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error 
 	}
 	d.lists[listIdx].listItems[taskIdx].itemName = taskTitle
 	d.lists[listIdx].listItems[taskIdx].itemDescription = taskDesc
+	d.Save()
 	return nil
 }
 
@@ -223,7 +226,7 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) error {
 }
 
 // Save saves the content of Data onto the file (taskgo.md).
-func (d *Data) Save(fileName string) {
+func (d *Data) Save() {
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
 	for _, list := range d.lists {
@@ -236,7 +239,7 @@ func (d *Data) Save(fileName string) {
 		}
 		fileContent = append(fileContent, "\n")
 	}
-	err := files.WriteFile(fileContent, fileName)
+	err := files.WriteFile(fileContent, d.FileName)
 	if err != nil {
 		log.Fatal(err)
 	}
