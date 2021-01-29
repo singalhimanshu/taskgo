@@ -1,14 +1,8 @@
 package command
 
 import (
-	"fmt"
-
 	"github.com/singalhimanshu/taskgo/parser"
 )
-
-func hello(name string) {
-	fmt.Printf("hello %v\n", name)
-}
 
 type Command interface {
 	Do(*parser.Data) error
