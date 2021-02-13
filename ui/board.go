@@ -118,11 +118,7 @@ func (p *BoardPage) moveDown() {
 	if activeTaskIdx+1 >= taskCount {
 		return
 	}
-	swapListItemCommand := command.CreateSwapListItemCommand(activeListIdx, activeTaskIdx, activeTaskIdx+1)
-	if err := p.command.Execute(swapListItemCommand); err != nil {
-		app.Stop()
-		log.Fatal(err)
-	}
+	p.swapListItem(activeListIdx, activeTaskIdx, activeTaskIdx+1)
 	p.data.Save()
 	p.redraw(p.activeListIdx)
 	p.down()
@@ -134,11 +130,7 @@ func (p *BoardPage) moveUp() {
 	if activeTaskIdx == 0 {
 		return
 	}
-	swapListItemCommand := command.CreateSwapListItemCommand(activeListIdx, activeTaskIdx, activeTaskIdx-1)
-	if err := p.command.Execute(swapListItemCommand); err != nil {
-		app.Stop()
-		log.Fatal(err)
-	}
+	p.swapListItem(activeListIdx, activeTaskIdx, activeTaskIdx-1)
 	p.data.Save()
 	p.redraw(p.activeListIdx)
 	p.up()
@@ -157,11 +149,7 @@ func (p *BoardPage) moveLeft() {
 	if taskCount == 0 {
 		return
 	}
-	moveTaskCommand := command.CreateMoveTaskCommand(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx-1)
-	if err := p.command.Execute(moveTaskCommand); err != nil {
-		app.Stop()
-		log.Fatal(err)
-	}
+	p.moveTask(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx-1)
 	p.data.Save()
 	if err := p.fixActiveTaskIdx(); err != nil {
 		app.Stop()
@@ -194,11 +182,7 @@ func (p *BoardPage) moveRight() {
 	if taskCount == 0 {
 		return
 	}
-	moveTaskCommand := command.CreateMoveTaskCommand(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx+1)
-	if err := p.command.Execute(moveTaskCommand); err != nil {
-		app.Stop()
-		log.Fatal(err)
-	}
+	p.moveTask(p.activeTaskIdxs[activeListIdx], activeListIdx, activeListIdx+1)
 	p.data.Save()
 	p.redraw(p.activeListIdx)
 	if err := p.fixActiveTaskIdx(); err != nil {
@@ -267,11 +251,7 @@ func (p *BoardPage) taskCompleted() {
 	if taskCount <= 0 {
 		return
 	}
-	moveTaskCommand := command.CreateMoveTaskCommand(activeTaskIdx, activeListIdx, taskDoneIdx)
-	if err := p.command.Execute(moveTaskCommand); err != nil {
-		app.Stop()
-		log.Fatal(err)
-	}
+	p.moveTask(activeTaskIdx, activeListIdx, taskDoneIdx)
 	p.redraw(activeListIdx)
 	p.redraw(taskDoneIdx)
 	if err := p.fixActiveTaskIdx(); err != nil {
@@ -307,12 +287,7 @@ func (p *BoardPage) setInputCapture(i int) {
 			p.left()
 			return nil
 		case tcell.KeyCtrlR:
-			err := p.command.Redo()
-			if err != nil {
-				app.Stop()
-				panic(err)
-			}
-			p.redrawAll()
+			p.redo()
 		}
 		switch event.Rune() {
 		case 'j', tcell.RuneDArrow:
@@ -348,12 +323,7 @@ func (p *BoardPage) setInputCapture(i int) {
 		case 'e':
 			pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
 		case 'u':
-			err := p.command.Undo()
-			if err != nil {
-				app.Stop()
-				panic(err)
-			}
-			p.redrawAll()
+			p.undo()
 		case 'q':
 			p.data.Save()
 			app.Stop()
@@ -413,4 +383,36 @@ func (p *BoardPage) redrawAll() {
 	for listIdx := 0; listIdx < listCount; listIdx++ {
 		p.redraw(listIdx)
 	}
+}
+
+func (p *BoardPage) swapListItem(listIdx, taskIdxFirst, taskIdxSecond int) {
+	swapListItemCommand := command.CreateSwapListItemCommand(listIdx, taskIdxFirst, taskIdxSecond)
+	if err := p.command.Execute(swapListItemCommand); err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+}
+
+func (p *BoardPage) moveTask(prevTaskIdx, prevListIdx, newListIdx int) {
+	moveTaskCommand := command.CreateMoveTaskCommand(prevTaskIdx, prevListIdx, newListIdx)
+	if err := p.command.Execute(moveTaskCommand); err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+}
+
+func (p *BoardPage) undo() {
+	if err := p.command.Undo(); err != nil {
+		app.Stop()
+		panic(err)
+	}
+	p.redrawAll()
+}
+
+func (p *BoardPage) redo() {
+	if err := p.command.Redo(); err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+	p.redrawAll()
 }
