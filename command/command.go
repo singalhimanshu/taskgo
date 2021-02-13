@@ -7,7 +7,6 @@ import (
 type Command interface {
 	Do(*parser.Data) error
 	Undo(*parser.Data) error
-	Redo(*parser.Data) error
 }
 
 type CommandManager struct {
@@ -54,7 +53,7 @@ func (c *CommandManager) Redo() error {
 		return nil
 	}
 	c.history_position++
-	return c.history[c.history_position].Redo(c.data)
+	return c.history[c.history_position].Do(c.data)
 }
 
 type AddTaskCommand struct {
@@ -81,10 +80,6 @@ func (a *AddTaskCommand) Undo(data *parser.Data) error {
 	return data.RemoveTask(a.listIdx, a.taskPos)
 }
 
-func (a *AddTaskCommand) Redo(data *parser.Data) error {
-	return a.Do(data)
-}
-
 type SwapListItemCommand struct {
 	listIdx       int
 	taskIdxFirst  int
@@ -105,10 +100,6 @@ func (s *SwapListItemCommand) Do(data *parser.Data) error {
 
 func (s *SwapListItemCommand) Undo(data *parser.Data) error {
 	return data.SwapListItems(s.listIdx, s.taskIdxSecond, s.taskIdxFirst)
-}
-
-func (s *SwapListItemCommand) Redo(data *parser.Data) error {
-	return s.Do(data)
 }
 
 type MoveTaskCommand struct {
@@ -133,10 +124,6 @@ func (s *MoveTaskCommand) Undo(data *parser.Data) error {
 	return data.MoveTask(s.prevTaskIdx, s.newListIdx, s.prevListIdx)
 }
 
-func (s *MoveTaskCommand) Redo(data *parser.Data) error {
-	return s.Do(data)
-}
-
 type EmptyCommand struct {
 }
 
@@ -149,9 +136,5 @@ func (e EmptyCommand) Do(data *parser.Data) error {
 }
 
 func (e EmptyCommand) Undo(data *parser.Data) error {
-	return nil
-}
-
-func (e EmptyCommand) Redo(data *parser.Data) error {
 	return nil
 }
