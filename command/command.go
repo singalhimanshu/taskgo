@@ -77,7 +77,38 @@ func (a *AddTaskCommand) Do(data *parser.Data) error {
 }
 
 func (a *AddTaskCommand) Undo(data *parser.Data) error {
-	return data.RemoveTask(a.listIdx, a.taskPos)
+	if _, err := data.RemoveTask(a.listIdx, a.taskPos); err != nil {
+		return err
+	}
+	return nil
+}
+
+type RemoveTaskCommand struct {
+	listIdx   int
+	taskTitle string
+	taskDesc  string
+	taskPos   int
+}
+
+func CreateRemoveTaskCommand(listIdx, taskPos int) *RemoveTaskCommand {
+	return &RemoveTaskCommand{
+		listIdx: listIdx,
+		taskPos: taskPos,
+	}
+}
+
+func (r *RemoveTaskCommand) Do(data *parser.Data) error {
+	taskData, err := data.RemoveTask(r.listIdx, r.taskPos)
+	if err != nil {
+		return err
+	}
+	r.taskTitle = taskData.ItemName
+	r.taskDesc = taskData.ItemDescription
+	return nil
+}
+
+func (r *RemoveTaskCommand) Undo(data *parser.Data) error {
+	return data.AddNewTask(r.listIdx, r.taskTitle, r.taskDesc, r.taskPos)
 }
 
 type SwapListItemCommand struct {

@@ -242,8 +242,8 @@ func (p *BoardPage) removeTask() {
 		return
 	}
 	removeTaskIdx := p.activeTaskIdxs[activeListIdx]
-	err = p.data.RemoveTask(activeListIdx, removeTaskIdx)
-	if err != nil {
+	removeTaskCommand := command.CreateRemoveTaskCommand(activeListIdx, removeTaskIdx)
+	if err := p.command.Execute(removeTaskCommand); err != nil {
 		app.Stop()
 		log.Fatal(err)
 	}
