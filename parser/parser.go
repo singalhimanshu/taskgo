@@ -149,7 +149,7 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskPos int) 
 		ItemName:        taskTitle,
 		ItemDescription: taskDesc,
 	}
-	d.insertTask(listIdx, newTask, taskPos+1)
+	d.insertTask(listIdx, newTask, taskPos)
 	d.Save()
 	return nil
 }

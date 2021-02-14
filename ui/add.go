@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"log"
 	"strings"
 
 	"github.com/rivo/tview"
@@ -25,10 +26,9 @@ func NewAddPage(p *BoardPage, pos int) *tview.Form {
 		addTaskCommand := command.CreateAddTaskCommand(p.activeListIdx, taskName, taskDesc, pos)
 		if err := p.command.Execute(addTaskCommand); err != nil {
 			app.Stop()
-			panic(err)
+			log.Fatal(err)
 		}
 		p.redraw(p.activeListIdx)
-		p.down()
 		pages.SwitchToPage("board")
 		app.SetFocus(p.lists[p.activeListIdx])
 	}).
