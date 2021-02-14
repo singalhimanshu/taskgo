@@ -223,6 +223,7 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 	taskData := d.lists[listIdx].listItems[taskIdx]
 	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems[:taskIdx],
 		d.lists[listIdx].listItems[taskIdx+1:]...)
+	d.Save()
 	return taskData, nil
 }
 
@@ -267,6 +268,7 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	}
 	swap(&d.lists[listIdx].listItems[taskIdxFirst],
 		&d.lists[listIdx].listItems[taskIdxSecond])
+	d.Save()
 	return nil
 }
 
