@@ -155,6 +155,38 @@ func (s *MoveTaskCommand) Undo(data *parser.Data) error {
 	return data.MoveTask(s.prevTaskIdx, s.newListIdx, s.prevListIdx)
 }
 
+type EditTaskCommand struct {
+	listIdx           int
+	taskIdx           int
+	taskTitle         string
+	taskDesc          string
+	originalTaskTitle string
+	originalTaskDesc  string
+}
+
+func CreateEditTaskCommand(listIdx, taskIdx int, taskTitle, taskDesc string) *EditTaskCommand {
+	return &EditTaskCommand{
+		listIdx:   listIdx,
+		taskIdx:   taskIdx,
+		taskTitle: taskTitle,
+		taskDesc:  taskDesc,
+	}
+}
+
+func (e *EditTaskCommand) Do(data *parser.Data) error {
+	originalTaskList, err := data.GetTask(e.listIdx, e.taskIdx)
+	if err != nil {
+		return err
+	}
+	e.originalTaskTitle = originalTaskList[0]
+	e.originalTaskDesc = originalTaskList[1]
+	return data.EditTask(e.listIdx, e.taskIdx, e.taskTitle, e.taskDesc)
+}
+
+func (e *EditTaskCommand) Undo(data *parser.Data) error {
+	return data.EditTask(e.listIdx, e.taskIdx, e.originalTaskTitle, e.originalTaskDesc)
+}
+
 type EmptyCommand struct {
 }
 

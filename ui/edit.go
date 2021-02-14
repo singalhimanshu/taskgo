@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/rivo/tview"
+	"github.com/singalhimanshu/taskgo/command"
 )
 
 // NewEditPage provides the form to edit an existing task.
@@ -28,10 +29,8 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) *tview.Form {
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
 		taskDesc = strings.TrimSpace(taskDesc)
 		activeListIdx := p.activeListIdx
-		err := p.data.EditTask(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
-		// editTaskCommand := command.CreateEditTaskCommand(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
-		// p.command.Execute(editTaskCommand)
-		if err != nil {
+		editTaskCommand := command.CreateEditTaskCommand(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
+		if err := p.command.Execute(editTaskCommand); err != nil {
 			app.Stop()
 			panic(err)
 		}
