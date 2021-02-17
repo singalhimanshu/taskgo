@@ -12,7 +12,7 @@ import (
 type Data struct {
 	boardName string
 	lists     []List
-	FileName  string
+	fileName  string
 }
 
 // A List represents the title of list and a list of items inside it (i.e tasks).
@@ -27,14 +27,20 @@ type ListItem struct {
 	ItemDescription string
 }
 
+func (d *Data) SetFileName(fileName string) {
+	d.fileName = fileName
+}
+
+func (d *Data) GetContentFromFile() []string {
+	if !files.CheckFile(d.fileName) {
+		files.CreateFile(d.fileName)
+	}
+	return files.OpenFile(d.fileName)
+}
+
 // ParseData parses the contents of the file (taskgo.md) to custom type Data
 // It returns an error if the syntax of file is incorrect
-func (d *Data) ParseData() error {
-	fileFound := files.CheckFile(d.FileName)
-	if !fileFound {
-		files.CreateFile(d.FileName)
-	}
-	fileContent := files.OpenFile(d.FileName)
+func (d *Data) ParseData(fileContent []string) error {
 	for lineNumber, line := range fileContent {
 		line = strings.TrimSpace(line)
 		// skip empty lines
@@ -105,6 +111,7 @@ func (d *Data) GetListNames() []string {
 // GetTask gives the task title and description given the list index and
 // task index. It returns an array of string and error if any of the
 // index are out of bounds.
+// TODO: return ListItem rather than slice of string
 func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
@@ -229,6 +236,9 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 
 // Save saves the content of Data onto the file (taskgo.md).
 func (d *Data) Save() {
+	if d.fileName == "" {
+		return
+	}
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
 	for _, list := range d.lists {
@@ -241,7 +251,7 @@ func (d *Data) Save() {
 		}
 		fileContent = append(fileContent, "\n")
 	}
-	err := files.WriteFile(fileContent, d.FileName)
+	err := files.WriteFile(fileContent, d.fileName)
 	if err != nil {
 		log.Fatal(err)
 	}

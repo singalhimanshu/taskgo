@@ -13,7 +13,7 @@ import (
 type BoardPage struct {
 	lists          []*tview.List
 	theme          *tview.Theme
-	data           parser.Data
+	data           *parser.Data
 	command        *command.CommandManager
 	activeListIdx  int
 	activeTaskIdxs []int
@@ -22,13 +22,13 @@ type BoardPage struct {
 // NewBoardPage adds the data to BoardPage structure.
 func NewBoardPage(fileName string) *BoardPage {
 	theme := defaultTheme()
-	data := parser.Data{
-		FileName: fileName,
-	}
-	if err := data.ParseData(); err != nil {
+	data := &parser.Data{}
+	data.SetFileName(fileName)
+	fileContent := data.GetContentFromFile()
+	if err := data.ParseData(fileContent); err != nil {
 		log.Fatal(err)
 	}
-	command := command.CreateNewCommand(&data)
+	command := command.CreateNewCommand(data)
 	listCount := len(data.GetListNames())
 	return &BoardPage{
 		lists:          make([]*tview.List, listCount),
