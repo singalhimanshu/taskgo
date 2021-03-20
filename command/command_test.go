@@ -8,33 +8,21 @@ import (
 )
 
 func TestExecute(t *testing.T) {
-	testData := &parser.Data{}
-	tempFileContent := []string{"# taskgo", "## TODO", "## DOING", "## DONE"}
-	if err := testData.ParseData(tempFileContent); err != nil {
-		t.Errorf("Unexpected Error: %v", err)
-	}
-	testCommand := CreateNewCommand(testData)
-	t.Run("Add task command", testAddTaskCommand(t, testCommand, testData))
-	if err := testData.ParseData(tempFileContent); err != nil {
-		t.Errorf("Unexpected Error: %v", err)
-	}
-	testData = &parser.Data{}
-	if err := testData.ParseData(tempFileContent); err != nil {
-		t.Errorf("Unexpected Error: %v", err)
-	}
-	testCommand = CreateNewCommand(testData)
-	t.Run("Remove task Command", testRemoveTaskCommand(t, testCommand, testData))
-	testData = &parser.Data{}
-	if err := testData.ParseData(tempFileContent); err != nil {
-		t.Errorf("Unexpected Error: %v", err)
-	}
-	testCommand = CreateNewCommand(testData)
-	t.Run("Swap List Item Command", testSwapListItemCommand(t, testCommand, testData))
+	t.Run("Add task command", testAddTaskCommand(t))
+	t.Run("Remove task Command", testRemoveTaskCommand(t))
+	t.Run("Swap List Item Command", testSwapListItemCommand(t))
 }
 
-func testAddTaskCommand(t *testing.T, testCommand *CommandManager, testData *parser.Data) func(*testing.T) {
+func testAddTaskCommand(t *testing.T) func(*testing.T) {
 	return func(t *testing.T) {
-		t.Helper()
+		testData, err := getNewData()
+		if err != nil {
+			t.Error(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			t.Error(err)
+		}
 		listIdx, taskIdx := 0, 0
 		actualTaskTitle := "test1"
 		actualTaskDesc := "test1 desc"
@@ -72,9 +60,16 @@ func testAddTaskCommand(t *testing.T, testCommand *CommandManager, testData *par
 	}
 }
 
-func testRemoveTaskCommand(t *testing.T, testCommand *CommandManager, testData *parser.Data) func(*testing.T) {
+func testRemoveTaskCommand(t *testing.T) func(*testing.T) {
 	return func(t *testing.T) {
-		t.Helper()
+		testData, err := getNewData()
+		if err != nil {
+			t.Error(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			t.Error(err)
+		}
 		listIdx, taskIdx := 0, 0
 		actualTaskTitle := "test1"
 		actualTaskDesc := "test1 desc"
@@ -87,7 +82,7 @@ func testRemoveTaskCommand(t *testing.T, testCommand *CommandManager, testData *
 		if err := testCommand.Execute(removeTaskCommand); err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		_, err := testData.GetTask(listIdx, taskIdx)
+		_, err = testData.GetTask(listIdx, taskIdx)
 		if err == nil {
 			t.Error("Expected error, but didn't get one")
 		}
@@ -113,9 +108,16 @@ func testRemoveTaskCommand(t *testing.T, testCommand *CommandManager, testData *
 	}
 }
 
-func testSwapListItemCommand(t *testing.T, testCommand *CommandManager, testData *parser.Data) func(*testing.T) {
+func testSwapListItemCommand(t *testing.T) func(*testing.T) {
 	return func(t *testing.T) {
-		t.Helper()
+		testData, err := getNewData()
+		if err != nil {
+			t.Error(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			t.Error(err)
+		}
 		firstListIdx, firstTaskIdx := 0, 0
 		firstTaskTitle := "test1"
 		firstTaskDesc := "test1 desc"
@@ -175,4 +177,21 @@ func compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskTitle, gotTaskDesc 
 		return fmt.Errorf("Expect description: %q, Got: %q", actualTaskDesc, gotTaskDesc)
 	}
 	return nil
+}
+
+func getNewData() (*parser.Data, error) {
+	tempFileContent := []string{"# taskgo", "## TODO", "## DOING", "## DONE"}
+	newData := &parser.Data{}
+	if err := newData.ParseData(tempFileContent); err != nil {
+		return nil, fmt.Errorf("Unexpected Error: %v", err)
+	}
+	return newData, nil
+}
+
+func getNewCommand(testData *parser.Data) (newCommand *CommandManager, err error) {
+	if err != nil {
+		return nil, err
+	}
+	newCommand = CreateNewCommand(testData)
+	return newCommand, nil
 }
