@@ -12,6 +12,7 @@ func TestExecute(t *testing.T) {
 	t.Run("Remove task Command", testRemoveTaskCommand(t))
 	t.Run("Swap List Item Command", testSwapListItemCommand(t))
 	t.Run("Move Task Command", testMoveTaskCommand(t))
+	t.Run("Edit Task Command", testEditTaskCommand(t))
 }
 
 func testAddTaskCommand(t *testing.T) func(*testing.T) {
@@ -220,6 +221,61 @@ func testMoveTaskCommand(t *testing.T) func(*testing.T) {
 			t.Errorf("Unexpected Error: %v", err)
 		}
 		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask[0], movedTask[1]); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func testEditTaskCommand(t *testing.T) func(*testing.T) {
+	return func(t *testing.T) {
+		testData, err := getNewData()
+		if err != nil {
+			t.Error(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			t.Error(err)
+		}
+		listIdx, taskIdx := 0, 0
+		actualTaskTitle := "test1"
+		actualTaskDesc := "test1 desc"
+		addTaskCommand := CreateAddTaskCommand(listIdx, actualTaskTitle, actualTaskDesc, taskIdx)
+		if err := testCommand.Execute(addTaskCommand); err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		editedTaskTitle, editedTaskDesc := "test1 edited", "test1 desc edited"
+		// Test Execute
+		editTaskCommand := CreateEditTaskCommand(listIdx, taskIdx, editedTaskTitle, editedTaskDesc)
+		if err := testCommand.Execute(editTaskCommand); err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		editedTask, err := testData.GetTask(listIdx, taskIdx)
+		if err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask[0], editedTask[1]); err != nil {
+			t.Error(err)
+		}
+		// Test Undo
+		if err := testCommand.Undo(); err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		originalTask, err := testData.GetTask(listIdx, taskIdx)
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, originalTask[0], originalTask[1]); err != nil {
+			t.Error(err)
+		}
+		// Test Redo
+		if err := testCommand.Redo(); err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		editedTask, err = testData.GetTask(listIdx, taskIdx)
+		if err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask[0], editedTask[1]); err != nil {
 			t.Error(err)
 		}
 	}
