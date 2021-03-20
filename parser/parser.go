@@ -12,6 +12,7 @@ import (
 type Data struct {
 	boardName string
 	lists     []List
+	fileName  string
 }
 
 // A List represents the title of list and a list of items inside it (i.e tasks).
@@ -22,18 +23,24 @@ type List struct {
 
 // A ListItem represents the name of item and it's description.
 type ListItem struct {
-	itemName        string
-	itemDescription string
+	ItemName        string
+	ItemDescription string
+}
+
+func (d *Data) SetFileName(fileName string) {
+	d.fileName = fileName
+}
+
+func (d *Data) GetContentFromFile() []string {
+	if !files.CheckFile(d.fileName) {
+		files.CreateFile(d.fileName)
+	}
+	return files.OpenFile(d.fileName)
 }
 
 // ParseData parses the contents of the file (taskgo.md) to custom type Data
 // It returns an error if the syntax of file is incorrect
-func (d *Data) ParseData(fileName string) error {
-	fileFound := files.CheckFile(fileName)
-	if !fileFound {
-		files.CreateFile(fileName)
-	}
-	fileContent := files.OpenFile(fileName)
+func (d *Data) ParseData(fileContent []string) error {
 	for lineNumber, line := range fileContent {
 		line = strings.TrimSpace(line)
 		// skip empty lines
@@ -62,7 +69,7 @@ func (d *Data) ParseData(fileName string) error {
 			itemNameStartIndex := strings.Index(line, " ") + 1
 			itemName := line[itemNameStartIndex:]
 			currentList.listItems = append(currentList.listItems, ListItem{
-				itemName: itemName,
+				ItemName: itemName,
 			})
 			d.lists[listCount-1] = currentList
 		} else if strings.HasPrefix(line, "> ") {
@@ -77,7 +84,7 @@ func (d *Data) ParseData(fileName string) error {
 			if listItemLen < 1 {
 				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
 			}
-			currentList.listItems[listItemLen-1].itemDescription = itemDesc
+			currentList.listItems[listItemLen-1].ItemDescription = itemDesc
 			d.lists[listCount-1] = currentList
 		} else {
 			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
@@ -104,6 +111,7 @@ func (d *Data) GetListNames() []string {
 // GetTask gives the task title and description given the list index and
 // task index. It returns an array of string and error if any of the
 // index are out of bounds.
+// TODO: return ListItem rather than slice of string
 func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
@@ -117,8 +125,8 @@ func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
 		return nil, err
 	}
 	result := []string{
-		d.lists[listIdx].listItems[taskIdx].itemName,
-		d.lists[listIdx].listItems[taskIdx].itemDescription,
+		d.lists[listIdx].listItems[taskIdx].ItemName,
+		d.lists[listIdx].listItems[taskIdx].ItemDescription,
 	}
 	return result, nil
 }
@@ -132,7 +140,7 @@ func (d *Data) GetTasks(listIdx int) ([]string, error) {
 	}
 	var tasks []string
 	for _, item := range d.lists[listIdx].listItems {
-		tasks = append(tasks, item.itemName)
+		tasks = append(tasks, item.ItemName)
 	}
 	return tasks, nil
 }
@@ -145,10 +153,11 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskPos int) 
 		return err
 	}
 	newTask := ListItem{
-		itemName:        taskTitle,
-		itemDescription: taskDesc,
+		ItemName:        taskTitle,
+		ItemDescription: taskDesc,
 	}
-	d.insertTask(listIdx, newTask, taskPos+1)
+	d.insertTask(listIdx, newTask, taskPos)
+	d.Save()
 	return nil
 }
 
@@ -167,8 +176,9 @@ func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error 
 	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return err
 	}
-	d.lists[listIdx].listItems[taskIdx].itemName = taskTitle
-	d.lists[listIdx].listItems[taskIdx].itemDescription = taskDesc
+	d.lists[listIdx].listItems[taskIdx].ItemName = taskTitle
+	d.lists[listIdx].listItems[taskIdx].ItemDescription = taskDesc
+	d.Save()
 	return nil
 }
 
@@ -193,50 +203,55 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	if err != nil {
 		return err
 	}
-	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].itemName
-	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].itemDescription
-	err = d.AddNewTask(newListIdx, taskTitle, taskDesc, newListTaskCount-1)
+	taskTitle := d.lists[prevListIdx].listItems[prevTaskIdx].ItemName
+	taskDesc := d.lists[prevListIdx].listItems[prevTaskIdx].ItemDescription
+	err = d.AddNewTask(newListIdx, taskTitle, taskDesc, newListTaskCount)
 	if err != nil {
 		return err
 	}
-	err = d.RemoveTask(prevListIdx, prevTaskIdx)
+	_, err = d.RemoveTask(prevListIdx, prevTaskIdx)
 	return err
 }
 
 // RemoveTask removes a task given the index of list and the task.
 // It returns an error if any of the index is out of bounds.
-func (d *Data) RemoveTask(listIdx, taskIdx int) error {
+func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
-		return err
+		return ListItem{}, err
 	}
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
-		return err
+		return ListItem{}, err
 	}
 	if err := checkBounds(taskIdx, taskCount); err != nil {
-		return fmt.Errorf("Index out of bounds(task): %v", taskIdx)
+		return ListItem{}, fmt.Errorf("Index out of bounds(task): %v", taskIdx)
 	}
+	taskData := d.lists[listIdx].listItems[taskIdx]
 	d.lists[listIdx].listItems = append(d.lists[listIdx].listItems[:taskIdx],
 		d.lists[listIdx].listItems[taskIdx+1:]...)
-	return nil
+	d.Save()
+	return taskData, nil
 }
 
 // Save saves the content of Data onto the file (taskgo.md).
-func (d *Data) Save(fileName string) {
+func (d *Data) Save() {
+	if d.fileName == "" {
+		return
+	}
 	var fileContent []string
 	fileContent = append(fileContent, "# "+d.boardName+"\n")
 	for _, list := range d.lists {
 		fileContent = append(fileContent, "## "+list.listTitle)
 		for _, listItem := range list.listItems {
-			fileContent = append(fileContent, "\t- "+listItem.itemName)
-			if len(listItem.itemDescription) > 0 {
-				fileContent = append(fileContent, "\t\t> "+listItem.itemDescription)
+			fileContent = append(fileContent, "\t- "+listItem.ItemName)
+			if len(listItem.ItemDescription) > 0 {
+				fileContent = append(fileContent, "\t\t> "+listItem.ItemDescription)
 			}
 		}
 		fileContent = append(fileContent, "\n")
 	}
-	err := files.WriteFile(fileContent, fileName)
+	err := files.WriteFile(fileContent, d.fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -263,6 +278,7 @@ func (d *Data) SwapListItems(listIdx, taskIdxFirst, taskIdxSecond int) error {
 	}
 	swap(&d.lists[listIdx].listItems[taskIdxFirst],
 		&d.lists[listIdx].listItems[taskIdxSecond])
+	d.Save()
 	return nil
 }
 

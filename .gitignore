@@ -21,4 +21,8 @@ taskgo.md
 !/**/
 !*.*
 
+# vscode related stuff
+.vscode/
+
 taskgo.md
+test.md
