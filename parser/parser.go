@@ -38,7 +38,7 @@ func (d *Data) GetContentFromFile() []string {
 	return files.OpenFile(d.fileName)
 }
 
-// ParseData parses the contents of the file (taskgo.md) to custom type Data
+// ParseData parses the contents of the file to custom type Data
 // It returns an error if the syntax of file is incorrect
 func (d *Data) ParseData(fileContent []string) error {
 	for lineNumber, line := range fileContent {
@@ -48,7 +48,7 @@ func (d *Data) ParseData(fileContent []string) error {
 			continue
 		}
 		if !files.CheckPrefix(line) {
-			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
+			return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 		}
 		if strings.HasPrefix(line, "# ") {
 			boardNameStartingIndex := strings.Index(line, " ") + 1
@@ -63,7 +63,7 @@ func (d *Data) ParseData(fileContent []string) error {
 		} else if strings.HasPrefix(line, "- ") {
 			listCount := d.GetListCount()
 			if listCount < 1 {
-				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
+				return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 			}
 			currentList := d.lists[listCount-1]
 			itemNameStartIndex := strings.Index(line, " ") + 1
@@ -75,19 +75,19 @@ func (d *Data) ParseData(fileContent []string) error {
 		} else if strings.HasPrefix(line, "> ") {
 			listCount := d.GetListCount()
 			if listCount < 1 {
-				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
+				return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 			}
 			currentList := d.lists[listCount-1]
 			itemDescStartIndex := strings.Index(line, " ") + 1
 			itemDesc := line[itemDescStartIndex:]
 			listItemLen := len(currentList.listItems)
 			if listItemLen < 1 {
-				return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
+				return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 			}
 			currentList.listItems[listItemLen-1].ItemDescription = itemDesc
 			d.lists[listCount-1] = currentList
 		} else {
-			return fmt.Errorf("Error at line %v of file taskgo.md\n Line: %v", lineNumber, line)
+			return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 		}
 	}
 	return nil
@@ -234,7 +234,7 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 	return taskData, nil
 }
 
-// Save saves the content of Data onto the file (taskgo.md).
+// Save saves the content of Data onto the file.
 func (d *Data) Save() {
 	if d.fileName == "" {
 		return

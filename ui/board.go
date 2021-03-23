@@ -49,15 +49,14 @@ func (p *BoardPage) Page() tview.Primitive {
 		p.lists[i].
 			ShowSecondaryText(false).
 			SetBorder(true)
-		// Highlights the first list
-		if i == 0 {
-			p.lists[i].SetBorderColor(theme.ContrastBackgroundColor)
-		}
+		p.lists[i].SetBorderColor(theme.PrimitiveBackgroundColor)
 		p.lists[i].SetTitle(listNames[i])
 		p.setInputCapture(i)
 		p.addTasksToList(i)
 		flex.AddItem(p.lists[i], 0, 1, i == 0)
 	}
+	// Highlights the first list
+	p.lists[0].SetBorderColor(theme.ContrastBackgroundColor)
 	boardName := p.data.GetBoardName()
 	boardName = "Board: " + boardName
 	frame := tview.NewFrame(flex).

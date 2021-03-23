@@ -34,7 +34,7 @@ var validPrefixes = [...]string{
 	"* ",
 }
 
-// CheckFile checks if the file(taskgo.md) is present in the current directory or not.
+// CheckFile checks if the file is present in the current directory or not.
 func CheckFile(fileName string) bool {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -45,7 +45,7 @@ func CheckFile(fileName string) bool {
 	return err == nil
 }
 
-// CreateFile Creates the file(taskgo.md).
+// CreateFile Creates the file.
 func CreateFile(fileName string) {
 	f, err := OpenFileWriteOnly(fileName)
 	defer f.Close()
