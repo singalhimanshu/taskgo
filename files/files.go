@@ -88,18 +88,6 @@ func GetDirectoryName() string {
 	return dirName
 }
 
-// CheckPrefix checks prefix if it matches to the given set of prefix.
-func CheckPrefix(line string) bool {
-	result := false
-	for _, prefix := range validPrefixes {
-		if strings.HasPrefix(strings.TrimSpace(line), prefix) {
-			result = true
-			break
-		}
-	}
-	return result
-}
-
 // FilePath returns the complete path of file given the fileName.
 func FilePath(fileName string) (string, error) {
 	dir, err := os.Getwd()

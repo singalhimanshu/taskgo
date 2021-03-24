@@ -47,9 +47,6 @@ func (d *Data) ParseData(fileContent []string) error {
 		if len(line) < 1 {
 			continue
 		}
-		if !files.CheckPrefix(line) {
-			return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
-		}
 		if strings.HasPrefix(line, "# ") {
 			boardNameStartingIndex := strings.Index(line, " ") + 1
 			boardName := line[boardNameStartingIndex:]
