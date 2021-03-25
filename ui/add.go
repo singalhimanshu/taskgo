@@ -9,10 +9,11 @@ import (
 )
 
 // NewAddPage provides the form to create a new task.
-func NewAddPage(p *BoardPage, pos int) *tview.Form {
+func NewAddPage(p *BoardPage, pos int) tview.Primitive {
+	fieldWidth := 20
 	form := tview.NewForm().
-		AddInputField("Task", "", 20, nil, nil).
-		AddInputField("Task Description", "", 20, nil, nil)
+		AddInputField("Task", "", fieldWidth, nil, nil).
+		AddInputField("Task Description", "", fieldWidth, nil, nil)
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
@@ -38,7 +39,7 @@ func NewAddPage(p *BoardPage, pos int) *tview.Form {
 			app.SetFocus(p.lists[p.activeListIdx])
 		})
 	form.SetBorder(true).SetTitle("Create Task").SetTitleAlign(tview.AlignCenter)
-	return form
+	return GetCenteredModal(form, 0, 0)
 }
 
 func EmptyTitleNameModal() *tview.Modal {

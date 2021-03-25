@@ -8,7 +8,7 @@ import (
 )
 
 // NewInfoPage displays the information about a task.
-func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
+func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 	task, err := p.data.GetTask(listIdx, taskIdx)
 	if err != nil {
 		app.Stop()
@@ -25,5 +25,5 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) *tview.Modal {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-	return help
+	return GetCenteredModal(help, 0, 0)
 }

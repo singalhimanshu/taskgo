@@ -24,7 +24,7 @@ q: quit
 `
 
 // NewHelpPage displays the help page that contains all the keybinds of the application
-func NewHelpPage(p *BoardPage) *tview.Modal {
+func NewHelpPage(p *BoardPage) tview.Primitive {
 	help := tview.NewModal().
 		SetText(helpText).
 		SetBackgroundColor(theme.PrimitiveBackgroundColor).
@@ -36,5 +36,5 @@ func NewHelpPage(p *BoardPage) *tview.Modal {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-	return help
+	return GetCenteredModal(help, 0, 0)
 }

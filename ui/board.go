@@ -314,16 +314,16 @@ func (p *BoardPage) setInputCapture(i int) {
 		case 'd':
 			p.taskCompleted()
 		case 'e':
-			pages.AddAndSwitchToPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+			pages.AddPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true, true)
 		case 'u':
 			p.undo()
 		case 'q':
 			p.data.Save()
 			app.Stop()
 		case '?':
-			pages.AddAndSwitchToPage("help", NewHelpPage(p), true)
+			pages.AddPage("help", NewHelpPage(p), true, true)
 		case rune(tcell.KeyEnter):
-			pages.AddAndSwitchToPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true)
+			pages.AddPage("info", NewInfoPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true, true)
 		case 'g':
 			p.focusFirst()
 		case 'G':
@@ -412,7 +412,7 @@ func (p *BoardPage) redo() {
 
 func (p *BoardPage) addTask() {
 	taskPos := p.activeTaskIdxs[p.activeListIdx]
-	pages.AddAndSwitchToPage("add", NewAddPage(p, taskPos), true)
+	pages.AddPage("add", NewAddPage(p, taskPos), true, true)
 }
 
 func (p *BoardPage) appendTask() {
@@ -425,5 +425,5 @@ func (p *BoardPage) appendTask() {
 		p.addTask()
 		return
 	}
-	pages.AddAndSwitchToPage("add", NewAddPage(p, lastTaskPos), true)
+	pages.AddPage("add", NewAddPage(p, lastTaskPos), true, true)
 }
