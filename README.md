@@ -10,6 +10,7 @@ Fast and simple terminal based Kanban board manager
 
 - Vim Style keybinds
 - Markdown file to store data
+- Undo/Redo operations
 
 ## Install
 
