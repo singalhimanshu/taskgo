@@ -39,7 +39,8 @@ func NewAddPage(p *BoardPage, pos int) tview.Primitive {
 			app.SetFocus(p.lists[p.activeListIdx])
 		})
 	form.SetBorder(true).SetTitle("Create Task").SetTitleAlign(tview.AlignCenter)
-	return GetCenteredModal(form, 0, 0)
+	width, height := GetSize()
+	return GetCenteredModal(form, width/2, height/2)
 }
 
 func EmptyTitleNameModal() *tview.Modal {

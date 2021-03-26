@@ -36,5 +36,6 @@ func NewHelpPage(p *BoardPage) tview.Primitive {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-	return GetCenteredModal(help, 0, 0)
+	width, height := GetSize()
+	return GetCenteredModal(help, width/2, height/2)
 }

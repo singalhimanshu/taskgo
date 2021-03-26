@@ -14,7 +14,7 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		app.Stop()
 		log.Fatal(err)
 	}
-	help := tview.NewModal().
+	info := tview.NewModal().
 		SetText(fmt.Sprintf("Task: %v\n Task Description: %v", task[0], task[1])).
 		SetBackgroundColor(theme.PrimitiveBackgroundColor).
 		AddButtons([]string{"OK"}).
@@ -25,5 +25,6 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 				app.SetFocus(p.lists[p.activeListIdx])
 			}
 		})
-	return GetCenteredModal(help, 0, 0)
+	width, height := GetSize()
+	return GetCenteredModal(info, width/2, height/2)
 }

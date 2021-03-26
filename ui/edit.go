@@ -45,5 +45,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 			app.SetFocus(p.lists[p.activeListIdx])
 		})
 	form.SetBorder(true).SetTitle("Edit Task").SetTitleAlign(tview.AlignCenter)
-	return GetCenteredModal(form, 0, 0)
+	width, height := GetSize()
+	return GetCenteredModal(form, width/2, height/2)
 }
