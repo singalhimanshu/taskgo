@@ -37,7 +37,7 @@ func testAddTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData[0], gotTaskData[1]); err != nil {
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData.ItemName, gotTaskData.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Undo
@@ -56,7 +56,7 @@ func testAddTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData[0], gotTaskData[1]); err != nil {
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData.ItemName, gotTaskData.ItemDescription); err != nil {
 			t.Error(err)
 		}
 	}
@@ -96,7 +96,7 @@ func testRemoveTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
-		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData[0], gotTaskData[1]); err != nil {
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData.ItemName, gotTaskData.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Redo
@@ -143,7 +143,7 @@ func testSwapListItemCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask[0], swappedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask.ItemName, swappedTask.ItemDescription); err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
 		// Test Undo
@@ -154,7 +154,7 @@ func testSwapListItemCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask[0], swappedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask.ItemName, swappedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Redo
@@ -165,7 +165,7 @@ func testSwapListItemCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask[0], swappedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, swappedTask.ItemName, swappedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 	}
@@ -198,7 +198,7 @@ func testMoveTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask[0], movedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask.ItemName, movedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Undo
@@ -209,7 +209,7 @@ func testMoveTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask[0], movedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask.ItemName, movedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Redo
@@ -220,7 +220,7 @@ func testMoveTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask[0], movedTask[1]); err != nil {
+		if err := compareTaskData(firstTaskTitle, firstTaskDesc, movedTask.ItemName, movedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 	}
@@ -253,7 +253,7 @@ func testEditTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask[0], editedTask[1]); err != nil {
+		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask.ItemName, editedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Undo
@@ -264,7 +264,7 @@ func testEditTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error: %v", err)
 		}
-		if err := compareTaskData(actualTaskTitle, actualTaskDesc, originalTask[0], originalTask[1]); err != nil {
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, originalTask.ItemName, originalTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 		// Test Redo
@@ -275,7 +275,7 @@ func testEditTaskCommand(t *testing.T) func(*testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected Error: %v", err)
 		}
-		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask[0], editedTask[1]); err != nil {
+		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask.ItemName, editedTask.ItemDescription); err != nil {
 			t.Error(err)
 		}
 	}

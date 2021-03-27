@@ -108,24 +108,19 @@ func (d *Data) GetListNames() []string {
 // GetTask gives the task title and description given the list index and
 // task index. It returns an array of string and error if any of the
 // index are out of bounds.
-// TODO: return ListItem rather than slice of string
-func (d *Data) GetTask(listIdx, taskIdx int) ([]string, error) {
+func (d *Data) GetTask(listIdx, taskIdx int) (ListItem, error) {
 	listCount := d.GetListCount()
 	if err := checkBounds(listIdx, listCount); err != nil {
-		return nil, err
+		return ListItem{}, err
 	}
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
-		return nil, err
+		return ListItem{}, err
 	}
 	if err := checkBounds(taskIdx, taskCount); err != nil {
-		return nil, err
+		return ListItem{}, err
 	}
-	result := []string{
-		d.lists[listIdx].listItems[taskIdx].ItemName,
-		d.lists[listIdx].listItems[taskIdx].ItemDescription,
-	}
-	return result, nil
+	return d.lists[listIdx].listItems[taskIdx], nil
 }
 
 // GetTasks returns a list of all the tasks of a particular list.

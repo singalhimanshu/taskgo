@@ -174,12 +174,12 @@ func CreateEditTaskCommand(listIdx, taskIdx int, taskTitle, taskDesc string) *Ed
 }
 
 func (e *EditTaskCommand) Do(data *parser.Data) error {
-	originalTaskList, err := data.GetTask(e.listIdx, e.taskIdx)
+	originalTask, err := data.GetTask(e.listIdx, e.taskIdx)
 	if err != nil {
 		return err
 	}
-	e.originalTaskTitle = originalTaskList[0]
-	e.originalTaskDesc = originalTaskList[1]
+	e.originalTaskTitle = originalTask.ItemName
+	e.originalTaskDesc = originalTask.ItemDescription
 	return data.EditTask(e.listIdx, e.taskIdx, e.taskTitle, e.taskDesc)
 }
 

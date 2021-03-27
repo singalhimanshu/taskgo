@@ -15,7 +15,7 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		log.Fatal(err)
 	}
 	info := tview.NewModal().
-		SetText(fmt.Sprintf("Task: %v\n Task Description: %v", task[0], task[1])).
+		SetText(fmt.Sprintf("Task: %v\n Task Description: %v", task.ItemName, task.ItemDescription)).
 		SetBackgroundColor(theme.PrimitiveBackgroundColor).
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {

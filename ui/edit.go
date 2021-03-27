@@ -17,8 +17,8 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 	}
 	fieldWidth := 20
 	form := tview.NewForm().
-		AddInputField("Task", task[0], fieldWidth, nil, nil).
-		AddInputField("Task Description", task[1], fieldWidth, nil, nil)
+		AddInputField("Task", task.ItemName, fieldWidth, nil, nil).
+		AddInputField("Task Description", task.ItemDescription, fieldWidth, nil, nil)
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
