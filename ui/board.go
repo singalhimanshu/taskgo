@@ -231,6 +231,7 @@ func (p *BoardPage) removeTask() {
 		log.Fatal(err)
 	}
 	p.data.Save()
+	p.up()
 	p.redraw(activeListIdx)
 }
 
