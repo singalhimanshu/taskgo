@@ -143,7 +143,7 @@ func (p *BoardPage) moveLeft() {
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if taskCount == 0 {
 		return
@@ -159,7 +159,7 @@ func (p *BoardPage) moveLeft() {
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if lastIdx > 0 {
 		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
@@ -176,7 +176,7 @@ func (p *BoardPage) moveRight() {
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if taskCount == 0 {
 		return
@@ -192,7 +192,7 @@ func (p *BoardPage) moveRight() {
 	lastIdx, err := p.data.GetTaskCount(p.activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if lastIdx > 0 {
 		p.activeTaskIdxs[p.activeListIdx] = lastIdx - 1
@@ -205,7 +205,7 @@ func (p *BoardPage) redraw(listIdx int) {
 	tasks, err := p.data.GetTasks(listIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
@@ -219,7 +219,7 @@ func (p *BoardPage) removeTask() {
 	taskCount, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if taskCount < 1 {
 		return
@@ -338,7 +338,7 @@ func (p *BoardPage) addTasksToList(listIdx int) {
 	tasks, err := p.data.GetTasks(listIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
@@ -359,7 +359,7 @@ func (p *BoardPage) focusLast() {
 	lastIdx, err := p.data.GetTaskCount(activeListIdx)
 	if err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	if p.activeTaskIdxs[activeListIdx] == lastIdx {
 		return
@@ -397,7 +397,7 @@ func (p *BoardPage) moveTask(prevTaskIdx, prevListIdx, newListIdx int) {
 func (p *BoardPage) undo() {
 	if err := p.command.Undo(); err != nil {
 		app.Stop()
-		panic(err)
+		log.Fatal(err)
 	}
 	p.redrawAll()
 }

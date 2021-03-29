@@ -33,7 +33,7 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		editTaskCommand := command.CreateEditTaskCommand(activeListIdx, p.activeTaskIdxs[activeListIdx], taskName, taskDesc)
 		if err := p.command.Execute(editTaskCommand); err != nil {
 			app.Stop()
-			panic(err)
+			log.Fatal(err)
 		}
 		p.redraw(activeListIdx)
 		pages.SwitchToPage("board")

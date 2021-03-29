@@ -32,6 +32,6 @@ func main() {
 	}
 	err := ui.Start("/" + *fileName)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
