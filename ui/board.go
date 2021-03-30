@@ -315,7 +315,7 @@ func (p *BoardPage) setInputCapture(i int) {
 		case 'd':
 			p.taskCompleted()
 		case 'e':
-			pages.AddPage("edit", NewEditPage(p, p.activeListIdx, p.activeTaskIdxs[p.activeListIdx]), true, true)
+			p.editTask()
 		case 'u':
 			p.undo()
 		case 'q':
@@ -427,4 +427,17 @@ func (p *BoardPage) appendTask() {
 		return
 	}
 	pages.AddPage("add", NewAddPage(p, lastTaskPos), true, true)
+}
+
+func (p *BoardPage) editTask() {
+	activeListIdx := p.activeListIdx
+	taskCount, err := p.data.GetTaskCount(activeListIdx)
+	if err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+	if taskCount < 1 {
+		return
+	}
+	pages.AddPage("edit", NewEditPage(p, activeListIdx, p.activeTaskIdxs[activeListIdx]), true, true)
 }
