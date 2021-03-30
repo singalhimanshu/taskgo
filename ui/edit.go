@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"github.com/singalhimanshu/taskgo/command"
 )
@@ -37,14 +38,27 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		}
 		p.redraw(activeListIdx)
 		pages.SwitchToPage("board")
-		app.SetFocus(p.lists[p.activeListIdx])
 	}).
 		AddButton("Cancel", func() {
-			pages.RemovePage("edit")
-			pages.SwitchToPage("board")
-			app.SetFocus(p.lists[p.activeListIdx])
+			closeRemovePage()
 		})
 	form.SetBorder(true).SetTitle("Edit Task").SetTitleAlign(tview.AlignCenter)
+	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			closeRemovePage()
+		}
+		switch event.Rune() {
+		case 'q':
+			closeRemovePage()
+		}
+		return event
+	})
 	width, height := GetSize()
 	return GetCenteredModal(form, width/2, height/2)
+}
+
+func closeRemovePage() {
+	pages.RemovePage("edit")
+	pages.SwitchToPage("board")
 }

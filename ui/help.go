@@ -1,6 +1,9 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
 
 const helpText = `j: down
 k: up
@@ -31,11 +34,25 @@ func NewHelpPage(p *BoardPage) tview.Primitive {
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(_ int, buttonLabel string) {
 			if buttonLabel == "OK" {
-				pages.HidePage("help")
-				pages.SwitchToPage("board")
-				app.SetFocus(p.lists[p.activeListIdx])
+				closeHelpPage()
 			}
 		})
+	help.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			closeHelpPage()
+		}
+		switch event.Rune() {
+		case 'q':
+			closeHelpPage()
+		}
+		return event
+	})
 	width, height := GetSize()
 	return GetCenteredModal(help, width/2, height/2)
+}
+
+func closeHelpPage() {
+	pages.HidePage("help")
+	pages.SwitchToPage("board")
 }

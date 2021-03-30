@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -20,11 +21,25 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			if buttonLabel == "OK" {
-				pages.RemovePage("info")
-				pages.SwitchToPage("board")
-				app.SetFocus(p.lists[p.activeListIdx])
+				closeInfoPage()
 			}
 		})
+	info.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			closeInfoPage()
+		}
+		switch event.Rune() {
+		case 'q':
+			closeHelpPage()
+		}
+		return event
+	})
 	width, height := GetSize()
 	return GetCenteredModal(info, width/2, height/2)
+}
+
+func closeInfoPage() {
+	pages.RemovePage("info")
+	pages.SwitchToPage("board")
 }
