@@ -31,7 +31,7 @@ func NewInfoPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		}
 		switch event.Rune() {
 		case 'q':
-			closeHelpPage()
+			closeInfoPage()
 		}
 		return event
 	})

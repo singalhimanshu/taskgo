@@ -13,17 +13,6 @@ var (
 	pages *tview.Pages
 )
 
-var globalInputCapture = func(event *tcell.EventKey) *tcell.EventKey {
-	s := string(event.Rune())
-	switch s {
-	case "?":
-		pages.SwitchToPage("help")
-	case "q":
-		app.Stop()
-	}
-	return event
-}
-
 func defaultTheme() *tview.Theme {
 	return &tview.Theme{
 		PrimitiveBackgroundColor:    tcell.ColorBlack,          // Main background color for primitives.
