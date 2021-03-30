@@ -48,10 +48,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		case tcell.KeyEsc:
 			closeRemovePage()
 		}
-		switch event.Rune() {
-		case 'q':
-			closeRemovePage()
-		}
 		return event
 	})
 	width, height := GetSize()

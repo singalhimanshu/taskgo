@@ -40,10 +40,6 @@ func NewAddPage(p *BoardPage, pos int) tview.Primitive {
 		case tcell.KeyEsc:
 			closeAddPage()
 		}
-		switch event.Rune() {
-		case 'q':
-			closeAddPage()
-		}
 		return event
 	})
 	form.SetBorder(true).SetTitle("Create Task").SetTitleAlign(tview.AlignCenter)
