@@ -14,12 +14,14 @@ Fast and simple terminal based Kanban board manager
 
 ## Install
 
-**Note**: Currently the only way to install taskgo is to build from source.
+The easiest way to get the application is to download the precompiled binaries from the [release](https://github.com/singalhimanshu/taskgo/releases) section.
+
+### Install latest version
 
 Make sure that you have [setup](https://golang.org/doc/install) go properly on your system and you have `$GOPATH/bin` in your `$PATH` variable (for linux/macOS) or environment variable for Windows.
 
 ```sh
-$ go get github.com/singalhimanshu/taskgo
+$ go get -u github.com/singalhimanshu/taskgo
 ```
 
 This will create a taskgo binary under `$GOPATH/bin` directory.
