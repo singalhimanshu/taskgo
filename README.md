@@ -30,6 +30,10 @@ This will create a taskgo binary under `$GOPATH/bin` directory.
 
 Simply run `taskgo`. This will create a taskgo.md file in your current directory.
 
+There is a `-f` flag to provide custom file name. 
+
+Example: `taskgo -f file_name.md`.
+
 ### Keybinds
 
 You can press `?` in the application itself to see the keybinds. But for reference they are here as well -
