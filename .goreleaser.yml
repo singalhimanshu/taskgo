@@ -27,3 +27,4 @@ changelog:
       - "^docs:"
       - "^test:"
       - "^ci:"
+      - "^bump:"
