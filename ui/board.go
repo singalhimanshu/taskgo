@@ -81,6 +81,9 @@ func (p *BoardPage) down() {
 func (p *BoardPage) up() {
 	activeList := p.lists[p.activeListIdx]
 	curIdx := activeList.GetCurrentItem()
+	if curIdx == 0 {
+		return
+	}
 	listLen := activeList.GetItemCount()
 	if listLen == 0 {
 		return
