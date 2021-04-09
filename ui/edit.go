@@ -16,10 +16,10 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		app.Stop()
 		log.Fatal(err)
 	}
-	fieldWidth := 20
+	width, height := GetSize()
 	form := tview.NewForm().
-		AddInputField("Task", task.ItemName, fieldWidth, nil, nil).
-		AddInputField("Task Description", task.ItemDescription, fieldWidth, nil, nil)
+		AddInputField("Task", task.ItemName, width/4, nil, nil).
+		AddInputField("Task Description", task.ItemDescription, width/4, nil, nil)
 	form = form.AddButton("Save", func() {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
@@ -50,7 +50,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		}
 		return event
 	})
-	width, height := GetSize()
 	return GetCenteredModal(form, width/2, height/2)
 }
 
