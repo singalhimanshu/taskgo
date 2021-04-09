@@ -24,8 +24,6 @@ func NewEditPage(p *BoardPage, listIdx, taskIdx int) tview.Primitive {
 		taskName := form.GetFormItemByLabel("Task").(*tview.InputField).GetText()
 		taskName = strings.TrimSpace(taskName)
 		if len(taskName) <= 0 {
-			emptyTitleNameModal := EmptyTitleNameModal()
-			pages.AddAndSwitchToPage("emptyTitle", emptyTitleNameModal, true)
 			return
 		}
 		taskDesc := form.GetFormItemByLabel("Task Description").(*tview.InputField).GetText()
