@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gdamore/tcell/v2"
@@ -45,12 +46,18 @@ func (p *BoardPage) Page() tview.Primitive {
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn)
 	listNames := p.data.GetListNames()
 	for i := 0; i < len(listNames); i++ {
+		curListTaskCount, err := p.data.GetTaskCount(i)
+		if err != nil {
+			app.Stop()
+			log.Fatal(err)
+		}
+		listName := fmt.Sprintf("%s [%d]", listNames[i], curListTaskCount)
 		p.lists[i] = tview.NewList()
 		p.lists[i].
 			ShowSecondaryText(false).
 			SetBorder(true)
 		p.lists[i].SetBorderColor(theme.PrimitiveBackgroundColor)
-		p.lists[i].SetTitle(listNames[i])
+		p.lists[i].SetTitle(listName)
 		p.setInputCapture(i)
 		p.addTasksToList(i)
 		flex.AddItem(p.lists[i], 0, 1, i == 0)
@@ -213,6 +220,14 @@ func (p *BoardPage) redraw(listIdx int) {
 	for _, item := range tasks {
 		p.lists[listIdx].AddItem(item, "", 0, nil)
 	}
+	listNames := p.data.GetListNames()
+	curListTaskCount, err := p.data.GetTaskCount(listIdx)
+	if err != nil {
+		app.Stop()
+		log.Fatal(err)
+	}
+	listName := fmt.Sprintf("%s [%d]", listNames[listIdx], curListTaskCount)
+	p.lists[listIdx].SetTitle(listName)
 	activeListIdx := p.activeListIdx
 	p.lists[activeListIdx].SetCurrentItem(p.activeTaskIdxs[activeListIdx])
 }
