@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/singalhimanshu/taskgo/parser"
@@ -277,6 +278,27 @@ func testEditTaskCommand(t *testing.T) func(*testing.T) {
 		}
 		if err := compareTaskData(editedTaskTitle, editedTaskDesc, editedTask.ItemName, editedTask.ItemDescription); err != nil {
 			t.Error(err)
+		}
+	}
+}
+
+func BenchmarkAddTaskCommand(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		testData, err := getNewData()
+		if err != nil {
+			log.Fatal(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			log.Fatal(err)
+		}
+		listIdx, taskIdx := 0, 0
+		taskTitle := "test"
+		taskDesc := "test desc"
+		for i := 0; i < 100; i++ {
+			addTaskCommand := CreateAddTaskCommand(listIdx, taskTitle, taskDesc, taskIdx)
+			testCommand.Execute(addTaskCommand)
+			taskIdx++
 		}
 	}
 }
