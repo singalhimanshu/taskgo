@@ -28,3 +28,4 @@ changelog:
       - "^test:"
       - "^ci:"
       - "^bump:"
+      - "^bench:"
