@@ -32,3 +32,6 @@ jobs:
 
       - name: Test
         run: go test -race -v ./...
+
+      - name: Benchmark
+        run: go test -bench=. -benchtime=5s -run=Bench -v ./...
