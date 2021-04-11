@@ -25,10 +25,10 @@ jobs:
         run: go version
 
       - name: Vet
-        run: go vet .
+        run: go vet ./...
 
       - name: Build
-        run: go build .
+        run: go build ./cmd/taskgo/
 
       - name: Test
         run: go test -race -v ./...
