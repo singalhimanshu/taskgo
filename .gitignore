@@ -16,14 +16,13 @@
 
 taskgo.md
 
-# Files with no extension
-*
-!/**/
-!*.*
-
 # vscode related stuff
 .vscode/
 
+# testing files
 taskgo.md
 test.md
 dist/
+
+# binaries
+taskgo
