@@ -1,5 +1,7 @@
 # Taskgo
 
+[![codecov](https://codecov.io/gh/singalhimanshu/taskgo/branch/main/graph/badge.svg?token=1KX3Y961FG)](https://codecov.io/gh/singalhimanshu/taskgo)
+
 Fast and simple terminal based Kanban board manager
 
 ## Demo
