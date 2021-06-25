@@ -1,10 +1,9 @@
 name: github-acitons
+
 on:
   push:
-    branches:
-      - main
-      - github-actions
   pull_request:
+    types: [opened, synchronize]
 
 jobs:
   build:

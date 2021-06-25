@@ -1,10 +1,9 @@
 name: golangci-lint
+
 on:
   push:
-    branches:
-      - main
-      - github-actions
   pull_request:
+    types: [opened, synchronize]
 
 jobs:
   golangci:
