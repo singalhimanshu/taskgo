@@ -56,6 +56,6 @@ You can press `?` in the application itself to see the keybinds. But for referen
 | g            | focus first item of list       |
 | G            | focus last item of list        |
 | u            | undo                           |
-| \<C-r>      | redo                           |
+| \<C-r>      | redo                            |
 | ?            | To view all these keybinds     |
 | q            | Quit application               |
