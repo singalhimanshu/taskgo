@@ -1,4 +1,4 @@
-name: github-acitons
+name: Run Vet, Build and benchmarks
 
 on:
   push:
@@ -28,9 +28,6 @@ jobs:
 
       - name: Build
         run: go build ./cmd/taskgo/
-
-      - name: Test
-        run: go test -race -v ./...
 
       - name: Benchmark
         run: go test -bench=. -benchtime=5s -run=Bench -v ./...
