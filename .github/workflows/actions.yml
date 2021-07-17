@@ -1,4 +1,4 @@
-name: Run Vet, Build, Test and benchmarks
+name: Run Vet, Build, Test
 
 on:
   push:
@@ -31,6 +31,3 @@ jobs:
 
       - name: Test
         run: go test -race ./...
-
-      - name: Benchmark
-        run: go test -bench=. -benchtime=5s -run=Bench -v ./...
