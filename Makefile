@@ -8,7 +8,7 @@ BINARY_NAME := taskgo
 PREFIX ?= /usr/local
 
 .PHONY = all
-all: build
+all: build test fmt
 
 .PHONY: build
 build: go.mod go.sum
@@ -35,6 +35,10 @@ vendor:
 .PHONY = test
 test:
 	$(GOTEST) -race ./...
+
+.PHONY = cov
+cov:
+	$(GOTEST) -race -coverpkg=./... ./...
 
 .PHONY = bench
 bench:
