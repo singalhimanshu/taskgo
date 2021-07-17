@@ -25,6 +25,7 @@ type List struct {
 type ListItem struct {
 	ItemName        string
 	ItemDescription string
+	Subtasks        []string
 }
 
 func (d *Data) SetFileName(fileName string) {
@@ -83,6 +84,19 @@ func (d *Data) ParseData(fileContent []string) error {
 			}
 			currentList.listItems[listItemLen-1].ItemDescription = itemDesc
 			d.lists[listCount-1] = currentList
+		} else if strings.HasPrefix(line, "+ ") {
+			listCount := d.GetListCount()
+			if listCount < 1 {
+				return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
+			}
+			currentList := d.lists[listCount-1]
+			subtaskStartIndex := strings.Index(line, " ") + 1
+			subtask := line[subtaskStartIndex:]
+			listItemLen := len(currentList.listItems)
+			if listItemLen < 1 {
+				return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
+			}
+			currentList.listItems[listItemLen-1].Subtasks = append(currentList.listItems[listItemLen-1].Subtasks, subtask)
 		} else {
 			return fmt.Errorf("Error at line %v of file %v\n Line: %v", lineNumber, d.fileName, line)
 		}
@@ -123,6 +137,28 @@ func (d *Data) GetTask(listIdx, taskIdx int) (ListItem, error) {
 	return d.lists[listIdx].listItems[taskIdx], nil
 }
 
+func (d *Data) GetSubtask(listIdx, taskIdx, subtaskIdx int) (string, error) {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return "", nil
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return "", err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return "", err
+	}
+	subtaskCount, err := d.GetSubtaskCount(listIdx, taskIdx)
+	if err != nil {
+		return "", nil
+	}
+	if err := checkBounds(subtaskIdx, subtaskCount); err != nil {
+		return "", err
+	}
+	return d.lists[listIdx].listItems[taskIdx].Subtasks[subtaskIdx], nil
+}
+
 // GetTasks returns a list of all the tasks of a particular list.
 // Example: ["Task 1", "Task 2"]
 func (d *Data) GetTasks(listIdx int) ([]string, error) {
@@ -135,6 +171,18 @@ func (d *Data) GetTasks(listIdx int) ([]string, error) {
 		tasks = append(tasks, item.ItemName)
 	}
 	return tasks, nil
+}
+
+// GetSubtasks return a list of strings and an error that
+// contains the name of the subtask. Example: ["Subtask 1",
+// Subtask 2"]. If the listIdx or taskIdx is out of bounds,
+// nil and an error is returned.
+func (d *Data) GetSubtasks(listIdx, taskIdx int) ([]string, error) {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return nil, err
+	}
+	return d.lists[listIdx].listItems[taskIdx].Subtasks, nil
 }
 
 // AddNewTask adds a new task to a list provided the list index and the title of that task.
@@ -150,6 +198,22 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskPos int) 
 	}
 	d.insertTask(listIdx, newTask, taskPos)
 	d.Save()
+	return nil
+}
+
+func (d *Data) AddSubtask(listIdx, taskIdx int, subtask string) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return err
+	}
+	d.lists[listIdx].listItems[taskIdx].Subtasks = append(d.lists[listIdx].listItems[taskIdx].Subtasks, subtask)
 	return nil
 }
 
@@ -171,6 +235,29 @@ func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error 
 	d.lists[listIdx].listItems[taskIdx].ItemName = taskTitle
 	d.lists[listIdx].listItems[taskIdx].ItemDescription = taskDesc
 	d.Save()
+	return nil
+}
+
+func (d *Data) EditSubtask(listIdx, taskIdx, subtaskIdx int, newSubtask string) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return err
+	}
+	subtaskCount, err := d.GetSubtaskCount(listIdx, taskIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(subtaskIdx, subtaskCount); err != nil {
+		return err
+	}
+	d.lists[listIdx].listItems[taskIdx].Subtasks[subtaskIdx] = newSubtask
 	return nil
 }
 
@@ -205,6 +292,36 @@ func (d *Data) MoveTask(prevTaskIdx, prevListIdx, newListIdx int) error {
 	return err
 }
 
+func (d *Data) MoveSubtask(listIdx, taskIdx, firstSubtaskIdx, secondSubtaskIdx int) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return err
+	}
+	subtaskCount, err := d.GetSubtaskCount(listIdx, taskIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(firstSubtaskIdx, subtaskCount); err != nil {
+		return err
+	}
+	if err := checkBounds(secondSubtaskIdx, subtaskCount); err != nil {
+		return err
+	}
+	// TODO(singalhimanshu): Refactor this (idea: make variables for listItem and so)
+	d.lists[listIdx].listItems[taskIdx].Subtasks[firstSubtaskIdx],
+		d.lists[listIdx].listItems[taskIdx].Subtasks[secondSubtaskIdx] =
+		d.lists[listIdx].listItems[taskIdx].Subtasks[secondSubtaskIdx],
+		d.lists[listIdx].listItems[taskIdx].Subtasks[firstSubtaskIdx]
+	return nil
+}
+
 // RemoveTask removes a task given the index of list and the task.
 // It returns an error if any of the index is out of bounds.
 func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
@@ -224,6 +341,32 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 		d.lists[listIdx].listItems[taskIdx+1:]...)
 	d.Save()
 	return taskData, nil
+}
+
+func (d *Data) RemoveSubtask(listIdx, taskIdx, subtaskIdx int) error {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return err
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return err
+	}
+	subtaskCount, err := d.GetSubtaskCount(listIdx, taskIdx)
+	if err != nil {
+		return err
+	}
+	if err := checkBounds(subtaskIdx, subtaskCount); err != nil {
+		return err
+	}
+	d.lists[listIdx].listItems[taskIdx].Subtasks = append(
+		d.lists[listIdx].listItems[taskIdx].Subtasks[:subtaskIdx],
+		d.lists[listIdx].listItems[taskIdx].Subtasks[subtaskIdx+1:]...,
+	)
+	return nil
 }
 
 // Save saves the content of Data onto the file.
@@ -282,6 +425,21 @@ func (d *Data) GetTaskCount(listIdx int) (int, error) {
 		return 0, err
 	}
 	return len(d.lists[listIdx].listItems), nil
+}
+
+func (d *Data) GetSubtaskCount(listIdx, taskIdx int) (int, error) {
+	listCount := d.GetListCount()
+	if err := checkBounds(listIdx, listCount); err != nil {
+		return 0, err
+	}
+	taskCount, err := d.GetTaskCount(listIdx)
+	if err != nil {
+		return 0, err
+	}
+	if err := checkBounds(taskIdx, taskCount); err != nil {
+		return 0, err
+	}
+	return len(d.lists[listIdx].listItems[taskIdx].Subtasks), nil
 }
 
 // GetListCount returns the count of lists.

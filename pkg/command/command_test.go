@@ -63,6 +63,54 @@ func testAddTaskCommand(t *testing.T) func(*testing.T) {
 	}
 }
 
+// @@ wip
+func testAddSubtaskCommand(t *testing.T) func(*testing.T) {
+	return func(t *testing.T) {
+		testData, err := getNewData()
+		if err != nil {
+			t.Error(err)
+		}
+		testCommand, err := getNewCommand(testData)
+		if err != nil {
+			t.Error(err)
+		}
+		listIdx, taskIdx := 0, 0
+		actualTaskTitle := "test1"
+		actualTaskDesc := "test1 desc"
+		addTaskCommand := CreateAddTaskCommand(listIdx, actualTaskTitle, actualTaskDesc, taskIdx)
+		// Test Execute
+		if err := testCommand.Execute(addTaskCommand); err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		gotTaskData, err := testData.GetTask(listIdx, taskIdx)
+		if err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData.ItemName, gotTaskData.ItemDescription); err != nil {
+			t.Error(err)
+		}
+		// Test Undo
+		if err := testCommand.Undo(); err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		_, err = testData.GetTask(listIdx, taskIdx)
+		if err == nil {
+			t.Errorf("Expected error, but didn't get one: %v", err)
+		}
+		// Test Redo
+		if err := testCommand.Redo(); err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		gotTaskData, err = testData.GetTask(listIdx, taskIdx)
+		if err != nil {
+			t.Errorf("Unexpected Error: %v", err)
+		}
+		if err := compareTaskData(actualTaskTitle, actualTaskDesc, gotTaskData.ItemName, gotTaskData.ItemDescription); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
 func testRemoveTaskCommand(t *testing.T) func(*testing.T) {
 	return func(t *testing.T) {
 		testData, err := getNewData()
