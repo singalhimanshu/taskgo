@@ -116,19 +116,19 @@ func (d *Data) GetListNames() []string {
 // GetTask gives the task title and description given the list index and
 // task index. It returns an array of string and error if any of the
 // index are out of bounds.
-func (d *Data) GetTask(listIdx, taskIdx int) (ListItem, error) {
+func (d *Data) GetTask(listIdx, taskIdx int) (*ListItem, error) {
 	list, err := d.GetList(listIdx)
 	if err != nil {
-		return ListItem{}, err
+		return nil, err
 	}
 	taskCount, err := d.GetTaskCount(listIdx)
 	if err != nil {
-		return ListItem{}, err
+		return nil, err
 	}
 	if err := checkBounds(taskIdx, taskCount); err != nil {
-		return ListItem{}, err
+		return nil, err
 	}
-	return list.listItems[taskIdx], nil
+	return &list.listItems[taskIdx], nil
 }
 
 // GetTasks returns a list of all the tasks of a particular list.
@@ -167,19 +167,12 @@ func (d *Data) AddNewTask(listIdx int, taskTitle, taskDesc string, taskIdx int) 
 // and task), task title and description. It returns an error if the
 // index are out of bounds.
 func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error {
-	list, err := d.GetList(listIdx)
+	task, err := d.GetTask(listIdx, taskIdx)
 	if err != nil {
 		return err
 	}
-	taskCount, err := d.GetTaskCount(listIdx)
-	if err != nil {
-		return err
-	}
-	if err := checkBounds(taskIdx, taskCount); err != nil {
-		return err
-	}
-	list.listItems[taskIdx].ItemName = taskTitle
-	list.listItems[taskIdx].ItemDescription = taskDesc
+	task.ItemName = taskTitle
+	task.ItemDescription = taskDesc
 	d.Save()
 	return nil
 }
@@ -187,26 +180,16 @@ func (d *Data) EditTask(listIdx, taskIdx int, taskTitle, taskDesc string) error 
 // MoveTask moves a task from one list to another.
 // It returns an error if any of the index is out of bounds.
 func (d *Data) MoveTask(taskIdx, sourceListIdx, destListIdx int) error {
-	sourceList, err := d.GetList(sourceListIdx)
+	sourceTask, err := d.GetTask(sourceListIdx, taskIdx)
 	if err != nil {
-		return err
-	}
-	if err := checkBounds(destListIdx, d.GetListCount()); err != nil {
-		return err
-	}
-	taskCount, err := d.GetTaskCount(sourceListIdx)
-	if err != nil {
-		return err
-	}
-	if err := checkBounds(taskIdx, taskCount); err != nil {
 		return err
 	}
 	newListTaskCount, err := d.GetTaskCount(destListIdx)
 	if err != nil {
 		return err
 	}
-	taskTitle := sourceList.listItems[taskIdx].ItemName
-	taskDesc := sourceList.listItems[taskIdx].ItemDescription
+	taskTitle := sourceTask.ItemName
+	taskDesc := sourceTask.ItemDescription
 	err = d.AddNewTask(destListIdx, taskTitle, taskDesc, newListTaskCount)
 	if err != nil {
 		return err
@@ -222,14 +205,11 @@ func (d *Data) RemoveTask(listIdx, taskIdx int) (ListItem, error) {
 	if err != nil {
 		return ListItem{}, err
 	}
-	taskCount, err := d.GetTaskCount(listIdx)
+	task, err := d.GetTask(listIdx, taskIdx)
 	if err != nil {
 		return ListItem{}, err
 	}
-	if err := checkBounds(taskIdx, taskCount); err != nil {
-		return ListItem{}, err
-	}
-	taskData := list.listItems[taskIdx]
+	taskData := *task
 	list.listItems = append(list.listItems[:taskIdx], list.listItems[taskIdx+1:]...)
 	d.Save()
 	return taskData, nil
@@ -261,24 +241,15 @@ func (d *Data) Save() {
 // SwapListItems swaps a task of one list with another list.
 // It returns an error if any of the index is out of bounds
 func (d *Data) SwapListItems(listIdx, firstTaskIdx, secondTaskIdx int) error {
-	list, err := d.GetList(listIdx)
+	firstTask, err := d.GetTask(listIdx, firstTaskIdx)
 	if err != nil {
 		return err
 	}
-	taskCount, err := d.GetTaskCount(listIdx)
+	secondTask, err := d.GetTask(listIdx, secondTaskIdx)
 	if err != nil {
 		return err
 	}
-	err = checkBounds(firstTaskIdx, taskCount)
-	if err != nil {
-		return err
-	}
-	err = checkBounds(secondTaskIdx, taskCount)
-	if err != nil {
-		return err
-	}
-	list.listItems[firstTaskIdx], list.listItems[secondTaskIdx] =
-		list.listItems[secondTaskIdx], list.listItems[firstTaskIdx]
+	*firstTask, *secondTask = *secondTask, *firstTask
 	d.Save()
 	return nil
 }
