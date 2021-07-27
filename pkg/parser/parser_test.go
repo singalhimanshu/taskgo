@@ -105,6 +105,9 @@ func TestMoveTask(t *testing.T) {
 			t.Fatalf("Want: %v, Got: %v", 1, destTaskCount)
 		}
 		movedTask, err := testData.GetTask(1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
 		if movedTask.ItemName != "Task" {
 			t.Fatalf("Want: %v, Got: %v", "Task", movedTask.ItemName)
 		}

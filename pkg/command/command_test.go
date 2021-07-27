@@ -297,7 +297,7 @@ func BenchmarkAddTaskCommand(b *testing.B) {
 		taskDesc := "test desc"
 		for i := 0; i < 100; i++ {
 			addTaskCommand := CreateAddTaskCommand(listIdx, taskTitle, taskDesc, taskIdx)
-			testCommand.Execute(addTaskCommand)
+			_ = testCommand.Execute(addTaskCommand)
 			taskIdx++
 		}
 	}

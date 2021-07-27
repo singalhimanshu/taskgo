@@ -21,19 +21,6 @@ const initialFileContent = `# %s
 
 `
 
-var validPrefixes = [...]string{
-	// Board Name
-	"# ",
-	// List Name
-	"## ",
-	// Task
-	"- ",
-	// Task Description
-	"> ",
-	// Subtask
-	"* ",
-}
-
 // CheckFile checks if the file is present in the current directory or not.
 func CheckFile(fileName string) bool {
 	dir, err := os.Getwd()
@@ -48,19 +35,19 @@ func CheckFile(fileName string) bool {
 // CreateFile Creates the file.
 func CreateFile(fileName string) {
 	f, err := OpenFileWriteOnly(fileName)
-	defer f.Close()
 	if err != nil {
 		log.Fatalf("Cannot create file %q, ERR: %v", fileName, err)
 	}
+	defer f.Close()
 }
 
 // WriteInitialContent Writes initial content to the file.
 func WriteInitialContent(fileName string) {
 	f, err := OpenFileWriteOnly(fileName)
-	defer f.Close()
 	if err != nil {
 		log.Fatalf("Cannot Open file %q, ERR: %v", fileName, err)
 	}
+	defer f.Close()
 	// TODO: Make these customizable
 	_, err = f.WriteString(fmt.Sprintf(initialFileContent, GetDirectoryName(), "TODO", "DOING", "DONE"))
 	if err != nil {
@@ -106,10 +93,10 @@ func OpenFile(fileName string) []string {
 		log.Fatal(err)
 	}
 	file, err := os.Open(filePath)
-	defer file.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	var fileContent []string

@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/rivo/tview"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func GetCenteredModal(p tview.Primitive, width, height int) tview.Primitive {
@@ -16,7 +16,7 @@ func GetCenteredModal(p tview.Primitive, width, height int) tview.Primitive {
 }
 
 func GetSize() (width, height int) {
-	width, height, err := terminal.GetSize(0)
+	width, height, err := term.GetSize(0)
 	if err != nil {
 		return 0, 0
 	}
