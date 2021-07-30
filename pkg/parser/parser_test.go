@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -239,6 +240,272 @@ func TestSwapListItems(t *testing.T) {
 		}
 		gotErr := testData.SwapListItems(0, 0, 100)
 		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, 2)
+		if wantErr.Error() != gotErr.Error() {
+			t.Fatalf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+}
+
+func TestAddSubtask(t *testing.T) {
+	t.Run("Add subtask", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		wantSubtasks := []string{"Subtask"}
+		if err := testData.AddSubtask(0, 0, wantSubtasks[0]); err != nil {
+			t.Fatal(err)
+		}
+		gotSubtasks, err := testData.GetSubtasks(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(wantSubtasks, gotSubtasks) {
+			t.Errorf("want: %v, Got: %v", wantSubtasks, gotSubtasks)
+		}
+	})
+
+	t.Run("Add subtask: list idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, 1)
+		if gotErr := testData.AddSubtask(100, 0, "Subtask"); wantErr.Error() != gotErr.Error() {
+			t.Errorf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+
+	t.Run("Add subtask: task idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		taskCount, err := testData.GetTaskCount(0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, taskCount)
+		if gotErr := testData.AddSubtask(0, 100, "Subtask"); wantErr.Error() != gotErr.Error() {
+			t.Errorf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+}
+
+func TestEditSubtask(t *testing.T) {
+	t.Run("Edit Subtask", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task", "+ Subtask"}); err != nil {
+			t.Fatal(err)
+		}
+		wantSubtask := "New Subtask"
+		if err := testData.EditSubtask(0, 0, 0, wantSubtask); err != nil {
+			t.Fatal(err)
+		}
+		gotSubtask, err := testData.GetSubtask(0, 0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotSubtask != wantSubtask {
+			t.Errorf("Got: %v, Want: %v", gotSubtask, wantSubtask)
+		}
+	})
+
+	t.Run("Edit Subtask: list idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, testData.GetListCount())
+		gotErr := testData.EditSubtask(100, 0, 0, "")
+		if gotErr.Error() != wantErr.Error() {
+			t.Errorf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+
+	t.Run("Edit Subtask: task idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		taskCount, err := testData.GetTaskCount(0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, taskCount)
+		gotErr := testData.EditSubtask(0, 100, 0, "")
+		if gotErr.Error() != wantErr.Error() {
+			t.Errorf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+
+	t.Run("Edit Subtask: subtask idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		subtaskCount, err := testData.GetSubtaskCount(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, subtaskCount)
+		gotErr := testData.EditSubtask(0, 0, 100, "")
+		if gotErr.Error() != wantErr.Error() {
+			t.Errorf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+}
+
+func TestRemoveSubtask(t *testing.T) {
+	t.Run("Remove Subtask", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task", "+ Subtask"}); err != nil {
+			t.Fatal(err)
+		}
+		if err := testData.RemoveSubtask(0, 0, 0); err != nil {
+			t.Fatal(err)
+		}
+		subtaskCount, err := testData.GetSubtaskCount(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if subtaskCount != 0 {
+			t.Fatalf("Want: %v, Got: %v", 0, subtaskCount)
+		}
+	})
+
+	t.Run("Remove Subtask: list idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, testData.GetListCount())
+		gotErr := testData.RemoveSubtask(100, 0, 0)
+		if gotErr.Error() != wantErr.Error() {
+			t.Fatalf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+
+	t.Run("Remove Subtask: task idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		taskCount, err := testData.GetTaskCount(0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, taskCount)
+		gotErr := testData.RemoveSubtask(0, 100, 0)
+		if gotErr.Error() != wantErr.Error() {
+			t.Fatalf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+
+	t.Run("Remove Subtask: subtask idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		subtaskCount, err := testData.GetSubtaskCount(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, subtaskCount)
+		gotErr := testData.RemoveSubtask(0, 0, 100)
+		if gotErr.Error() != wantErr.Error() {
+			t.Fatalf("Got: %v, Want: %v", gotErr, wantErr)
+		}
+	})
+}
+
+func TestSwapSubtask(t *testing.T) {
+	t.Run("Swap Subtask", func(t *testing.T) {
+		subtasks := []string{"First Subtask", "Second Subtask"}
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task",
+			"+ " + subtasks[0], "+ " + subtasks[1]}); err != nil {
+			t.Fatal(err)
+		}
+		firstSubtaskIdx := 0
+		secondSubtaskIdx := 1
+		if err := testData.SwapSubtask(0, 0, firstSubtaskIdx, secondSubtaskIdx); err != nil {
+			t.Fatal(err)
+		}
+		wantFirstSubtask := subtasks[1]
+		wantSecondSubtask := subtasks[0]
+		gotFirstSubtask, err := testData.GetSubtask(0, 0, firstSubtaskIdx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotFirstSubtask != wantFirstSubtask {
+			t.Fatalf("Got: %v, Want: %v", gotFirstSubtask, wantFirstSubtask)
+		}
+		gotSecondSubtask, err := testData.GetSubtask(0, 0, secondSubtaskIdx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotSecondSubtask != wantSecondSubtask {
+			t.Fatalf("Got: %v, Want: %v", gotSecondSubtask, wantSecondSubtask)
+		}
+	})
+
+	t.Run("Swap Subtask: list idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		listCount := testData.GetListCount()
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, listCount)
+		gotErr := testData.SwapSubtask(100, 0, 0, 0)
+		if wantErr.Error() != gotErr.Error() {
+			t.Errorf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+
+	t.Run("Swap Subtask: task idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		taskCount, err := testData.GetTaskCount(0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, taskCount)
+		gotErr := testData.SwapSubtask(0, 100, 0, 0)
+		if wantErr.Error() != gotErr.Error() {
+			t.Errorf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+
+	t.Run("Swap Subtask: first subtask idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task"}); err != nil {
+			t.Fatal(err)
+		}
+		subtaskCount, err := testData.GetSubtaskCount(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, subtaskCount)
+		gotErr := testData.SwapSubtask(0, 0, 100, 0)
+		if wantErr.Error() != gotErr.Error() {
+			t.Fatalf("Want: %v, Got: %v", wantErr, gotErr)
+		}
+	})
+
+	t.Run("Swap Subtask: second subtask idx out of bounds", func(t *testing.T) {
+		testData := &Data{}
+		if err := testData.ParseData([]string{"# taskgo", "## List", "- Task", "+ Subtask"}); err != nil {
+			t.Fatal(err)
+		}
+		subtaskCount, err := testData.GetSubtaskCount(0, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantErr := fmt.Errorf("Index Out of Bounds: got %v, length: %v", 100, subtaskCount)
+		gotErr := testData.SwapSubtask(0, 0, 0, 100)
 		if wantErr.Error() != gotErr.Error() {
 			t.Fatalf("Want: %v, Got: %v", wantErr, gotErr)
 		}
